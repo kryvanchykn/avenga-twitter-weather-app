@@ -19,10 +19,12 @@
         <thead>
         <tr>
             <th>
-                <a>Region</a>
+                <a th:href="@{'/sorted?sortField=region&sortDir=' + ${reverseSortDir}}">
+                    Region</a>
             </th>
             <th>
-                <a>Date</a>
+                <a th:href="@{'/sorted?sortField=strikeDate&sortDir=' + ${reverseSortDir}}">
+                    Date</a>
             </th>
         </tr>
         </thead>

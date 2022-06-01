@@ -11,10 +11,12 @@ import java.time.LocalDate;
 import java.util.*;
 
 public class TwitterData {
+
     public static HashSet<RocketStrike> getRocketStrikes(Twitter authObject, Set<String> users, List<Region> regions,
                                                            Set<String> keywords, LocalDate sinceDate, LocalDate untilDate) {
         ArrayList<RocketStrike> rocketStrikes = new ArrayList<>();
         RocketStrike rocketStrike;
+        long id = 1;
         try {
             Query query = new Query();
             QueryResult result;
@@ -29,6 +31,7 @@ public class TwitterData {
                     rocketStrike = new RocketStrike();
                     rocketStrike.setStrikeDate(tweet.getCreatedAt());
                     rocketStrike.setRegion(region);
+                    rocketStrike.setId(id++);
                     rocketStrikes.add(rocketStrike);
                 }
             }

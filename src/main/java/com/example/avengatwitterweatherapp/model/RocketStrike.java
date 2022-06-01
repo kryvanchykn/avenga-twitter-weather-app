@@ -8,7 +8,7 @@ import java.util.Objects;
 @Table(name = "rocket_strikes")
 public class RocketStrike {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy=GenerationType.AUTO)
     private Long id;
 
     private Region region;
