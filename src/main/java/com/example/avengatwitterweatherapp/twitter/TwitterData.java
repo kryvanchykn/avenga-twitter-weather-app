@@ -10,6 +10,9 @@ import twitter4j.Twitter;
 import java.time.LocalDate;
 import java.util.*;
 
+import static com.example.avengatwitterweatherapp.constants.RegionConstants.*;
+import static com.example.avengatwitterweatherapp.constants.TwitterConstants.*;
+
 public class TwitterData {
 
     public static HashSet<RocketStrike> getRocketStrikes(Twitter authObject, Set<String> users, List<Region> regions,
@@ -20,8 +23,8 @@ public class TwitterData {
         try {
             Query query = new Query();
             QueryResult result;
-            query.setSince(sinceDate.toString());
-            query.setUntil(untilDate.toString());
+            query.setSince("15-05-2022");
+            query.setUntil("20-05-2022");
             for (Region region : regions) {
                 query.setQuery(formQueries(users, region, keywords));
                 result = authObject.search(query);
@@ -43,11 +46,17 @@ public class TwitterData {
     }
 
     private static String formQueries(Set<String> users, Region region, Set<String> keywords){
-        String usersQuery = "(from:" + String.join(" OR from:", users) + ")";
-        String regionQuery = "(" + region.getRegionName() + " OR " + region.getRegionAltName() + ")";
-        String keywordsQuery = "(" + String.join( " OR ", keywords) + ")";
-        System.out.println(usersQuery + " AND " + regionQuery + " AND " + keywordsQuery);
-        return usersQuery + " AND " + regionQuery + " AND " + keywordsQuery;
+        String usersQuery = FROM + String.join(OR + FROM, users);
+        String regionQuery = formRegionQuery(region);
+        String keywordsQuery = String.join( OR, keywords);
+        System.out.println(usersQuery + AND + regionQuery + AND + keywordsQuery);
+        return usersQuery + AND + regionQuery + AND + keywordsQuery;
+    }
+
+    private static String formRegionQuery(Region region){
+        return region.getRegionName().substring(0, region.getRegionName().length() - REGION_NAME_SUBS_NUMBER)
+                + REGION_NAME_NEW_END + OR + region.getRegionAltName().substring(0, region.getRegionAltName().length() -
+                REGION_ALT_NAME_SUBS_NUMBER) + REGION_ALT_NAME_NEW_END;
     }
 
 }

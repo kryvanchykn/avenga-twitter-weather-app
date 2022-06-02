@@ -7,13 +7,12 @@ import com.example.avengatwitterweatherapp.service.RegionService;
 import com.example.avengatwitterweatherapp.service.RocketStrikeService;
 import com.example.avengatwitterweatherapp.twitter.TwitterAuth;
 import com.example.avengatwitterweatherapp.twitter.TwitterData;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import twitter4j.Twitter;
 import java.util.*;
 
-import static com.example.avengatwitterweatherapp.twitter.TwitterConstants.*;
+import static com.example.avengatwitterweatherapp.constants.TwitterConstants.*;
 
 @Service
 public class RocketStrikeServiceImpl implements RocketStrikeService {
