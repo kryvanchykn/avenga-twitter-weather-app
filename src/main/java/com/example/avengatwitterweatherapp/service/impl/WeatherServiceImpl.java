@@ -24,7 +24,7 @@ public class WeatherServiceImpl implements WeatherService {
     @Override
     public Weather getWeather(RocketStrike rocketStrike) {
         OkHttpClient client = new OkHttpClient();  //using OKHTTP dependency . You have to add this mannually form OKHTTP website
-        String APIkey = "3c874aa77b77cbb9ff3ad925e203bfee";
+        String APIkey = System.getenv("WEATHER_API_KEY");
         Request request = new Request.Builder()
                 .url("http://api.openweathermap.org/data/2.5/weather?q="+ rocketStrike.getRegion().getRegionalCentreEn()
                         + "&appid="+ APIkey)
@@ -32,6 +32,7 @@ public class WeatherServiceImpl implements WeatherService {
 
         try {
             Response response = client.newCall(request).execute();
+            assert response.body() != null;
             return mapWeather(new JSONObject(response.body().string()));
         }catch (IOException | JSONException e){
             log.debug(e.getMessage());
