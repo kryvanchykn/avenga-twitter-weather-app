@@ -9,6 +9,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
-public interface RocketStrikeRepository extends JpaRepository<RocketStrike, Long>, RocketStrikeRepositoryCustom {
+public interface RocketStrikeRepository extends JpaRepository<RocketStrike, Long> {
+    Set<RocketStrike> findRocketStrikeByStrikeDateBetween(Date sinceDate, Date untilDate);
 }

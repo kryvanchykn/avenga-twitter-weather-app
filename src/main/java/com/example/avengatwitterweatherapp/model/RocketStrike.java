@@ -7,6 +7,8 @@ import javax.persistence.*;
 import java.util.Date;
 import java.util.Objects;
 
+import static com.example.avengatwitterweatherapp.constants.TwitterConstants.MIN_15;
+
 @Entity
 @Table(name = "rocket_strikes")
 @Getter
@@ -28,7 +30,7 @@ public class RocketStrike {
         if (o == null || getClass() != o.getClass()) return false;
         RocketStrike that = (RocketStrike) o;
         return Objects.equals(region, that.region) &&
-                Math.abs(this.strikeDate.getTime() - that.strikeDate.getTime()) < 900000;
+                Math.abs(this.strikeDate.getTime() - that.strikeDate.getTime()) < MIN_15;
     }
 
     @Override

@@ -15,7 +15,7 @@ INSERT INTO demo.regions (id, region_alt_name, region_name, regional_centre_en, 
 INSERT INTO demo.regions (id, region_alt_name, region_name, regional_centre_en, regional_centre_ua) VALUES ('15', 'Закарпаття', 'Закарпатська область', 'Uzhhorod', 'Ужгород');
 INSERT INTO demo.regions (id, region_alt_name, region_name, regional_centre_en, regional_centre_ua) VALUES ('16', 'Миколаївщина', 'Миколаївська область', 'Mykolaiv', 'Миколаїв');
 INSERT INTO demo.regions (id, region_alt_name, region_name, regional_centre_en, regional_centre_ua) VALUES ('17', 'Кіровоградщина', 'Кіровоградська область', 'Kropyvnytskyi', 'Кропивницький');
-INSERT INTO demo.regions (id, region_alt_name, region_name, regional_centre_en, regional_centre_ua) VALUES ('18', 'Сумщина', 'Сумська область', 'Symu', 'Суми');
+INSERT INTO demo.regions (id, region_alt_name, region_name, regional_centre_en, regional_centre_ua) VALUES ('18', 'Сумщина', 'Сумська область', 'Sumy', 'Суми');
 INSERT INTO demo.regions (id, region_alt_name, region_name, regional_centre_en, regional_centre_ua) VALUES ('19', 'Черкащина', 'Черкаська область', 'Cherkasy', 'Черкаси');
 INSERT INTO demo.regions (id, region_alt_name, region_name, regional_centre_en, regional_centre_ua) VALUES ('20', 'Хмельниччина', 'Хмельницька область', 'Khmelnytskyi', 'Хмельницький');
 INSERT INTO demo.regions (id, region_alt_name, region_name, regional_centre_en, regional_centre_ua) VALUES ('21', 'Рівненщина', 'Рівненська область', 'Rivne', 'Рівне');
