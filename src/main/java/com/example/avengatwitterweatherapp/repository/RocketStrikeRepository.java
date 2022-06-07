@@ -10,8 +10,5 @@ import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
-public interface RocketStrikeRepository extends JpaRepository<RocketStrike, Long> {
-    List<RocketStrike> findSortedRocketStrikeByStrikeDateBetween(
-    @DateTimeFormat(fallbackPatterns = "dd-MM-yyyy")Date sinceDate,
-    @DateTimeFormat(fallbackPatterns = "dd-MM-yyyy")Date untilDate, Sort sort);
+public interface RocketStrikeRepository extends JpaRepository<RocketStrike, Long>, RocketStrikeRepositoryCustom {
 }

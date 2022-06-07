@@ -1,53 +1,59 @@
 package com.example.avengatwitterweatherapp.controller;
 
 import com.example.avengatwitterweatherapp.model.RocketStrike;
+import com.example.avengatwitterweatherapp.repository.RocketStrikeRepository;
 import com.example.avengatwitterweatherapp.service.RocketStrikeService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static com.example.avengatwitterweatherapp.constants.RocketStrikeConstants.*;
-import static com.example.avengatwitterweatherapp.constants.TwitterConstants.SINCE_DATE;
-import static com.example.avengatwitterweatherapp.constants.TwitterConstants.UNTIL_DATE;
 
 @Controller
 public class RocketStrikeController {
     private final RocketStrikeService rocketStrikeService;
+    private final RocketStrikeRepository rocketStrikeRepository;
 
-    public RocketStrikeController(RocketStrikeService rocketStrikeService) {
+    public RocketStrikeController(RocketStrikeService rocketStrikeService, RocketStrikeRepository rocketStrikeRepository) {
         this.rocketStrikeService = rocketStrikeService;
+        this.rocketStrikeRepository = rocketStrikeRepository;
     }
 
     @GetMapping("/")
-    public String viewRocketStrikes(Model model){
-        model.addAttribute("setRocketStrikes", rocketStrikeService.getRocketStrikesFromTwitter());
-    return sortedRocketStrikes(SORT_BY_REGION, ASC_ORDER, model);
-    }
+    public String viewRocketStrikes(@RequestParam(name="sortField", defaultValue=SORT_BY_REGION) String sortField,
+                                    @RequestParam(name="sortDir", defaultValue=ASC_ORDER) String sortDir,
+                                    Model model){
 
+        if(model.containsAttribute("setRocketStrikesBetweenDates")){
+            System.out.println("Dates");
+            model.addAttribute("setRocketStrikes", model.getAttribute("setRocketStrikesBetweenDates"));
 
-    @GetMapping("/sorted")
-    public String sortedRocketStrikes(@RequestParam("sortField") String sortField,
-                                      @RequestParam("sortDir") String sortDir,
-                                      Model model) {
-
-        HashSet<RocketStrike> setRocketStrikes = rocketStrikeService.getSortedRocketStrikes(sortField, sortDir);
+        } else {
+            if(rocketStrikeService.getRocketStrikesFromDB().size() == 0){
+                rocketStrikeService.getRocketStrikesFromTwitter();
+            }
+            List<RocketStrike> rocketStrikes = rocketStrikeService.getSortedRocketStrikes(sortField, sortDir);
+            model.addAttribute("setRocketStrikes", rocketStrikes);
+        }
 
         model.addAttribute("sortField", sortField);
         model.addAttribute("sortDir", sortDir);
         model.addAttribute("reverseSortDir", sortDir.equals(ASC_ORDER) ? DESC_ORDER : ASC_ORDER);
 
-        model.addAttribute("setRocketStrikes", setRocketStrikes);
         return "rocket_strikes.html";
     }
+
 
     @PostMapping("/date")
     public String PostForm(@ModelAttribute("sinceDate") String sinceDate,
                            @ModelAttribute("untilDate") String untilDate,
                            Model model){
-        System.out.println("sinceDate = " + sinceDate);
-        return viewRocketStrikes(model);
+        model.addAttribute("setRocketStrikesBetweenDates",
+                rocketStrikeRepository.findSortedRocketStrikeByStrikeDateBetween(sinceDate, untilDate));
+        return viewRocketStrikes(SORT_BY_REGION, ASC_ORDER, model);
     }
 }

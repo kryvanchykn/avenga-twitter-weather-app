@@ -16,7 +16,6 @@ import twitter4j.QueryResult;
 import twitter4j.Status;
 import twitter4j.Twitter;
 
-import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -43,12 +42,11 @@ public class RocketStrikeServiceImpl implements RocketStrikeService {
         HashSet<RocketStrike> rocketStrikes = new HashSet<>();
         try {
             authObject = TwitterAuth.authenticate();
-            rocketStrikes = getRocketStrikes(authObject, regionService.getAllRegions(), SINCE_DATE, UNTIL_DATE);
+            rocketStrikes = getRocketStrikes(authObject, regionService.getAllRegions());
         } catch (Exception e) {
             log.debug(e.getMessage());
         }
         rocketStrikeRepository.saveAll(rocketStrikes);
-        System.out.println("rocketStrikeRepository.size = " + rocketStrikeRepository.findAll().size());
         return rocketStrikes;
     }
 
@@ -58,16 +56,14 @@ public class RocketStrikeServiceImpl implements RocketStrikeService {
     }
 
     @Override
-    public HashSet<RocketStrike> getSortedRocketStrikes(String sortField, String sortDirection) {
+    public List<RocketStrike> getSortedRocketStrikes(String sortField, String sortDirection) {
         Sort sort = sortDirection.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortField).ascending() :
                 Sort.by(sortField).descending();
-        System.out.println("rocketStrikeRepository.findAll(sort) = " + rocketStrikeRepository.findAll(sort).size());
-        return new HashSet<>(rocketStrikeRepository.findAll(sort));
+        return rocketStrikeRepository.findAll(sort);
     }
 
 
-    public HashSet<RocketStrike> getRocketStrikes(Twitter authObject, List<Region> regions,
-                                                  LocalDate sinceDate, LocalDate untilDate) {
+    public HashSet<RocketStrike> getRocketStrikes(Twitter authObject, List<Region> regions) {
         HashSet<RocketStrike> rocketStrikes = getRocketStrikesFromDB();
         try {
             Query query = new Query();

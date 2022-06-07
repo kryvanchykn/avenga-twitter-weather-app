@@ -58,12 +58,11 @@
         <thead>
         <tr>
             <th>
-                <a th:href="@{'/sorted?sortField=region&sortDir=' + ${reverseSortDir}}">
-                    <!--                <a th:href="@{'/sorted?sortField=strikeDate&sortDir=' + ${reverseSortDir} + '&sinceDate=24-2-2022&untilDate=6-3-2022'}">-->
+                <a th:href="@{'/?sortField=region&sortDir=' + ${reverseSortDir}}">
                     Region</a>
             </th>
             <th>
-                <a th:href="@{'/sorted?sortField=strikeDate&sortDir=' + ${reverseSortDir}}">
+                <a th:href="@{'/?sortField=strikeDate&sortDir=' + ${reverseSortDir}}">
                     Date</a>
             </th>
         </tr>
