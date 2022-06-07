@@ -6,8 +6,9 @@ import java.util.HashSet;
 import java.util.List;
 
 public interface RocketStrikeService {
-    HashSet<RocketStrike> getRocketStrikesFromTwitter();
+    void getRocketStrikesFromTwitter();
     HashSet<RocketStrike> getRocketStrikesFromDB();
     List<RocketStrike> getSortedRocketStrikes(String sortField, String sortDirection);
+    RocketStrike getRocketStrikeById(Long id);
 
 }

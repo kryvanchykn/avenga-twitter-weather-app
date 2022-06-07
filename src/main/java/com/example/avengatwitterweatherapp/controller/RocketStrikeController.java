@@ -7,9 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import static com.example.avengatwitterweatherapp.constants.RocketStrikeConstants.*;
 
@@ -47,13 +45,14 @@ public class RocketStrikeController {
         return "rocket_strikes.html";
     }
 
-
     @PostMapping("/date")
-    public String PostForm(@ModelAttribute("sinceDate") String sinceDate,
-                           @ModelAttribute("untilDate") String untilDate,
-                           Model model){
+    public String viewRocketStrikesByDate(@ModelAttribute("sinceDate") String sinceDate,
+                                          @ModelAttribute("untilDate") String untilDate,
+                                          Model model){
         model.addAttribute("setRocketStrikesBetweenDates",
                 rocketStrikeRepository.findSortedRocketStrikeByStrikeDateBetween(sinceDate, untilDate));
         return viewRocketStrikes(SORT_BY_REGION, ASC_ORDER, model);
     }
+
+
 }

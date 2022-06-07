@@ -37,7 +37,7 @@ public class RocketStrikeServiceImpl implements RocketStrikeService {
     }
 
     @Override
-    public HashSet<RocketStrike> getRocketStrikesFromTwitter() {
+    public void getRocketStrikesFromTwitter() {
         Twitter authObject;
         HashSet<RocketStrike> rocketStrikes = new HashSet<>();
         try {
@@ -47,7 +47,6 @@ public class RocketStrikeServiceImpl implements RocketStrikeService {
             log.debug(e.getMessage());
         }
         rocketStrikeRepository.saveAll(rocketStrikes);
-        return rocketStrikes;
     }
 
     @Override
@@ -60,6 +59,11 @@ public class RocketStrikeServiceImpl implements RocketStrikeService {
         Sort sort = sortDirection.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortField).ascending() :
                 Sort.by(sortField).descending();
         return rocketStrikeRepository.findAll(sort);
+    }
+
+    @Override
+    public RocketStrike getRocketStrikeById(Long id) {
+        return rocketStrikeRepository.findById(id).get();
     }
 
 

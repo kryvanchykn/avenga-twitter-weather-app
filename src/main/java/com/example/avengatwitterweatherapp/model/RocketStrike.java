@@ -2,10 +2,8 @@ package com.example.avengatwitterweatherapp.model;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
-import java.time.LocalDate;
 import java.util.Date;
 import java.util.Objects;
 

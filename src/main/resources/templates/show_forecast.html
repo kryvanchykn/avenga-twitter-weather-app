@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="ISO-8859-1">
+    <title>Weather forecast</title>
+    <link rel="stylesheet"
+          href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+          crossorigin="anonymous">
+</head>
+<body>
+<nav class="navbar navbar-expand-md bg-dark navbar-dark">
+    <!-- Brand -->
+    <a class="navbar-brand" href="#">Weather forecast</a>
+
+    <!-- Toggler/collapsibe Button -->
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Navbar links -->
+    <div class="collapse navbar-collapse" id="collapsibleNavbar">
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/}">Rocket Strikes</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+<br>
+<br>
+<div class = "container">
+    <div class = "row">
+        <div class ="col-lg-6 col-md-6 col-sm-6 container justify-content-center card">
+            <h1 class = "text-center">Weather forecast</h1>
+            <div class = "card-body">
+                <h2 th:text="'City: ' + ${rocketStrike.region.regionalCentreEn} + ', UA'"></h2>
+                <h2 th:text="'Date: ' + ${#dates.format(rocketStrike.strikeDate, 'dd-MM-yyyy')}"></h2>
+                <h3 th:text="'Description: ' + ${weather.description}"></h3>
+                <h3 th:text="'Temperature: ' + ${weather.temp} + '&#176 F'"></h3>
+                <h3 th:text="'Feels like: ' + ${weather.feelsLike} + '&#176 F'"></h3>
+                <h3 th:text="'Min temperature: ' + ${weather.minTemp} + '&#176 F'"></h3>
+                <h3 th:text="'Max temperature: ' + ${weather.maxTemp} + '&#176 F'"></h3>
+                <h3 th:text="'Pressure: ' + ${weather.pressure} + 'hPa'"></h3>
+                <h3 th:text="'Humidity: ' + ${weather.humidity} + '%'"></h3>
+                <h3 th:text="'Wind speed: ' + ${weather.wind} + 'mph'"></h3>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

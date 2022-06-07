@@ -65,12 +65,17 @@
                 <a th:href="@{'/?sortField=strikeDate&sortDir=' + ${reverseSortDir}}">
                     Date</a>
             </th>
+            <th>Action</th>
         </tr>
         </thead>
         <tbody>
         <tr th:each="rocketStrike : ${setRocketStrikes}">
             <td th:text="${rocketStrike.region.regionalCentreUa}"></td>
             <td th:text="${#dates.format(rocketStrike.strikeDate, 'dd-MM-yyyy hh:mm')}"></td>
+            <td>
+                <a th:href = "@{/forecast/{id}(id=${rocketStrike.id})}"
+                   class = "btn btn-primary">Show forecast</a>
+            </td>
         </tr>
         </tbody>
     </table>
