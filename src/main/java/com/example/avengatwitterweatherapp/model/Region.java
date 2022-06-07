@@ -1,9 +1,14 @@
 package com.example.avengatwitterweatherapp.model;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.persistence.*;
 
 @Entity
 @Table(name = "regions")
+@Getter
+@Setter
 public class Region {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,44 +26,15 @@ public class Region {
     @Column(name = "regional_centre_en")
     private String regionalCentreEn;
 
-    public long getId() {
-        return id;
-    }
 
-    public void setId(long id) {
-        this.id = id;
+    @Override
+    public String toString() {
+        return "Region{" +
+                "id=" + id +
+                ", regionName='" + regionName + '\'' +
+                ", regionAltName='" + regionAltName + '\'' +
+                ", regionalCentreUa='" + regionalCentreUa + '\'' +
+                ", regionalCentreEn='" + regionalCentreEn + '\'' +
+                '}';
     }
-
-    public String getRegionName() {
-        return regionName;
-    }
-
-    public void setRegionName(String regionName) {
-        this.regionName = regionName;
-    }
-
-    public String getRegionAltName() {
-        return regionAltName;
-    }
-
-    public void setRegionAltName(String regionAltName) {
-        this.regionAltName = regionAltName;
-    }
-
-    public String getRegionalCentreUa() {
-        return regionalCentreUa;
-    }
-
-    public void setRegionalCentreUa(String regionalCentreUa) {
-        this.regionalCentreUa = regionalCentreUa;
-    }
-
-    public String getRegionalCentreEn() {
-        return regionalCentreEn;
-    }
-
-    public void setRegionalCentreEn(String regionalCentreEn) {
-        this.regionalCentreEn = regionalCentreEn;
-    }
-
 }

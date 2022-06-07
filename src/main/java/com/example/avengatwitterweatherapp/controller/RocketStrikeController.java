@@ -2,23 +2,29 @@ package com.example.avengatwitterweatherapp.controller;
 
 import com.example.avengatwitterweatherapp.model.RocketStrike;
 import com.example.avengatwitterweatherapp.service.RocketStrikeService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.Date;
+import java.util.HashSet;
+
+import static com.example.avengatwitterweatherapp.constants.RocketStrikeConstants.*;
+import static com.example.avengatwitterweatherapp.constants.TwitterConstants.SINCE_DATE;
+import static com.example.avengatwitterweatherapp.constants.TwitterConstants.UNTIL_DATE;
 
 @Controller
 public class RocketStrikeController {
-    @Autowired
-    private RocketStrikeService rocketStrikeService;
+    private final RocketStrikeService rocketStrikeService;
+
+    public RocketStrikeController(RocketStrikeService rocketStrikeService) {
+        this.rocketStrikeService = rocketStrikeService;
+    }
 
     @GetMapping("/")
     public String viewRocketStrikes(Model model){
-        model.addAttribute("listRocketStrikes", rocketStrikeService.getAllRocketStrikes());
-        return sortedRocketStrikes("region", "asc", model);
+        model.addAttribute("setRocketStrikes", rocketStrikeService.getRocketStrikesFromTwitter());
+    return sortedRocketStrikes(SORT_BY_REGION, ASC_ORDER, model);
     }
 
 
@@ -27,13 +33,21 @@ public class RocketStrikeController {
                                       @RequestParam("sortDir") String sortDir,
                                       Model model) {
 
-        List<RocketStrike> listRocketStrikes = rocketStrikeService.getSortedRocketStrikes(sortField, sortDir);
+        HashSet<RocketStrike> setRocketStrikes = rocketStrikeService.getSortedRocketStrikes(sortField, sortDir);
 
         model.addAttribute("sortField", sortField);
         model.addAttribute("sortDir", sortDir);
-        model.addAttribute("reverseSortDir", sortDir.equals("asc") ? "desc" : "asc");
+        model.addAttribute("reverseSortDir", sortDir.equals(ASC_ORDER) ? DESC_ORDER : ASC_ORDER);
 
-        model.addAttribute("listRocketStrikes", listRocketStrikes);
+        model.addAttribute("setRocketStrikes", setRocketStrikes);
         return "rocket_strikes.html";
+    }
+
+    @PostMapping("/date")
+    public String PostForm(@ModelAttribute("sinceDate") String sinceDate,
+                           @ModelAttribute("untilDate") String untilDate,
+                           Model model){
+        System.out.println("sinceDate = " + sinceDate);
+        return viewRocketStrikes(model);
     }
 }
