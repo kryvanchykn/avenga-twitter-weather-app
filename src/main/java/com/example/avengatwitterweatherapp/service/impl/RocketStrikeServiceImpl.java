@@ -16,11 +16,14 @@ import twitter4j.QueryResult;
 import twitter4j.Status;
 import twitter4j.Twitter;
 
+import java.time.*;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.example.avengatwitterweatherapp.constants.RegionConstants.*;
 import static com.example.avengatwitterweatherapp.constants.RegionConstants.REGION_ALT_NAME_NEW_END;
+import static com.example.avengatwitterweatherapp.constants.RocketStrikeConstants.SORT_BY_REGION;
 import static com.example.avengatwitterweatherapp.constants.TwitterConstants.*;
 
 @Service
@@ -37,28 +40,29 @@ public class RocketStrikeServiceImpl implements RocketStrikeService {
     }
 
     @Override
-    public void getRocketStrikesFromTwitter() {
+    public void getRocketStrikesFromTwitter(LocalDate sinceDate, LocalDate untilDate) {
         Twitter authObject;
-        HashSet<RocketStrike> rocketStrikes = new HashSet<>();
+        Set<RocketStrike> rocketStrikes;
         try {
             authObject = TwitterAuth.authenticate();
-            rocketStrikes = getRocketStrikes(authObject, regionService.getAllRegions());
+            rocketStrikes = getRocketStrikes(authObject, regionService.getAllRegions(), sinceDate, untilDate);
+            rocketStrikeRepository.saveAll(rocketStrikes);
         } catch (Exception e) {
             log.debug(e.getMessage());
         }
-        rocketStrikeRepository.saveAll(rocketStrikes);
     }
 
     @Override
-    public HashSet<RocketStrike> getRocketStrikesFromDB() {
+    public Set<RocketStrike> getRocketStrikesFromDB() {
         return new HashSet<>(rocketStrikeRepository.findAll());
     }
 
     @Override
-    public List<RocketStrike> getSortedRocketStrikes(String sortField, String sortDirection) {
+    public List<RocketStrike> getSortedRocketStrikesFromDB(LocalDateTime sinceDate, LocalDateTime untilDate,
+                                                     String sortField, String sortDirection) {
         Sort sort = sortDirection.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortField).ascending() :
                 Sort.by(sortField).descending();
-        return rocketStrikeRepository.findAll(sort);
+        return rocketStrikeRepository.findRocketStrikeByStrikeDateBetween(sinceDate, untilDate, sort);
     }
 
     @Override
@@ -67,25 +71,40 @@ public class RocketStrikeServiceImpl implements RocketStrikeService {
     }
 
 
-    public HashSet<RocketStrike> getRocketStrikes(Twitter authObject, List<Region> regions) {
-        HashSet<RocketStrike> rocketStrikes = getRocketStrikesFromDB();
+    @Override
+    public LocalDateTime getFirstRocketStrikeDate() {
+        RocketStrike rocketStrike = new RocketStrike();
+        rocketStrike.setStrikeDate(UNTIL_DATE);
+        return rocketStrikeRepository.findAll().stream().min(Comparator.comparing(RocketStrike::getStrikeDate))
+                .orElse(rocketStrike).getStrikeDate();
+    }
+
+    @Override
+    public LocalDateTime getLastRocketStrikeDate() {
+        RocketStrike rocketStrike = new RocketStrike();
+        rocketStrike.setStrikeDate(SINCE_DATE);
+        return rocketStrikeRepository.findAll().stream().max(Comparator.comparing(RocketStrike::getStrikeDate))
+                .orElse(rocketStrike).getStrikeDate();
+    }
+
+
+    public Set<RocketStrike> getRocketStrikes(Twitter authObject, List<Region> regions,
+                                              LocalDate sinceDate, LocalDate untilDate) {
+        Set<RocketStrike> rocketStrikes = new HashSet<>();
         try {
             Query query = new Query();
             QueryResult result;
-            query.setSince(SINCE_DATE.toString());
-            query.setUntil(UNTIL_DATE.toString());
             for (Region region : regions) {
-                query.setQuery(formQueries(region));
+                query.setQuery(formQueries(region, sinceDate, untilDate));
                 result = authObject.search(query);
                 rocketStrikes.addAll(mapRocketStrike(result.getTweets(), region));
             }
         } catch (Exception e) {
             log.error(e.getMessage());
         }
-        System.out.println("ROCKET STRIKES");
+        log.debug("ROCKET STRIKES");
         for (RocketStrike rocketStrike:rocketStrikes) {
-            System.out.println(rocketStrike);
-
+            log.debug(rocketStrike);
         }
         return rocketStrikes;
     }
@@ -94,17 +113,23 @@ public class RocketStrikeServiceImpl implements RocketStrikeService {
         return tweets.stream().map(tweet -> {
             RocketStrike rocketStrike= new RocketStrike();
             rocketStrike.setRegion(region);
-            rocketStrike.setStrikeDate(tweet.getCreatedAt());
-            System.out.println(rocketStrike);
+            Date input = tweet.getCreatedAt();
+            Instant instant = input.toInstant();
+            ZonedDateTime zdt = instant.atZone(ZoneId.systemDefault());
+            LocalDateTime date = zdt.toLocalDateTime();
+            rocketStrike.setStrikeDate(date);
+            log.debug("created at1: " + tweet.getCreatedAt());
+            log.debug("created at2: " + date);
+            log.debug(rocketStrike);
             return rocketStrike;
         }).collect(Collectors.toSet());
     }
 
-    private static String formQueries(Region region){
+    private static String formQueries(Region region, LocalDate sinceDate, LocalDate untilDate){
         String usersQuery = FROM + String.join(OR + FROM, USERS);
         String keywordsQuery = String.join(OR, KEYWORDS);
-        System.out.println(usersQuery + AND + formRegionQuery(region) + AND + keywordsQuery);
-        return usersQuery + AND + formRegionQuery(region) + AND + keywordsQuery;
+        log.debug( usersQuery + SINCE + sinceDate + UNTIL + untilDate + formRegionQuery(region) + AND + keywordsQuery);
+        return usersQuery + SINCE + sinceDate + UNTIL + untilDate + formRegionQuery(region) + AND + keywordsQuery;
     }
 
     private static String formRegionQuery(Region region){
@@ -112,6 +137,6 @@ public class RocketStrikeServiceImpl implements RocketStrikeService {
                 + REGION_NAME_NEW_END;
         String formattedAltRegionName = region.getRegionAltName().substring(0, region.getRegionAltName().length() -
                 REGION_ALT_NAME_SUBS_NUMBER) + REGION_ALT_NAME_NEW_END;
-        return formattedRegionName + OR + formattedAltRegionName;
+        return " " + formattedRegionName + OR + formattedAltRegionName;
     }
 }

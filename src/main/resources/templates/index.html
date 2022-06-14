@@ -12,32 +12,76 @@
 </head>
 <body>
 
+<div class = "row">
+    <div class ="col-lg-6 col-md-6 col-sm-6 container justify-content-center card">
+        <h1 class = "text-center"> Select period of time </h1>
+        <div class = "card-body">
+            <form th:action="@{date}" method="POST">
+                <div class ="form-group">
+                    <label> Since date </label>
+                    <input
+                            type = "datetime-local"
+                            name = "sinceDate"
+                            id = "sinceDate"
+                            class = "form-control"
+                            placeholder="Enter start date"
+                    />
+                </div>
+
+                <div class ="form-group">
+                    <label> Until date </label>
+                    <input
+                            type = "datetime-local"
+                            name = "untilDate"
+                            id = "untilDate"
+                            class = "form-control"
+                            placeholder="Enter end date"
+                    />
+                </div>
+
+                <div class = "box-footer">
+                    <button type="submit" class = "btn btn-primary">
+                        Submit
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+
 <div class="container my-2">
-    <h1>Regions List</h1>
+    <h1>Rocket strikes list</h1>
+    <h3>Recent rocket strikes</h3>
 
     <table border="1" class = "table table-striped table-responsive-md">
         <thead>
         <tr>
             <th>
-                <a>Region name</a>
+                <a th:href="@{'/?sortField=region&sortDir=' + ${reverseSortDir}}">
+                    Region</a>
             </th>
             <th>
-                <a>Region alternative name</a>
+                <a th:href="@{'/?sortField=strikeDate&sortDir=' + ${reverseSortDir}}">
+                    Date</a>
             </th>
-            <th>
-                <a>Regional center</a>
-            </th>
-
+            <th>Action</th>
         </tr>
         </thead>
         <tbody>
-        <tr th:each="region : ${listRegions}">
-            <td th:text="${region.regionName}"></td>
-            <td th:text="${region.regionAltName}"></td>
-            <td th:text="${region.regionalCentreEn}"></td>
+        <tr th:each="rocketStrike : ${listRocketStrikes}">
+            <td th:text="${rocketStrike.region.regionalCentreUa}"></td>
+            <td th:text="${rocketStrike.strikeDate}"></td>
+            <!--            <td th:text="${#dates.format(rocketStrike.strikeDate, 'dd-MM-yyyy hh:mm')}"></td>-->
+            <td>
+                <a th:href = "@{/forecast/{id}(id=${rocketStrike.id})}"
+                   class = "btn btn-primary">Show forecast</a>
+            </td>
         </tr>
         </tbody>
     </table>
 </div>
+<script src="/static/date-validation.js"></script>
 </body>
 </html>

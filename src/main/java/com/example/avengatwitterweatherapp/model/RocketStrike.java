@@ -4,10 +4,13 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.Objects;
 
-import static com.example.avengatwitterweatherapp.constants.TwitterConstants.MIN_15;
+import static com.example.avengatwitterweatherapp.constants.RocketStrikeConstants.MINUTES_DIFFERENCE;
 
 @Entity
 @Table(name = "rocket_strikes")
@@ -22,20 +25,20 @@ public class RocketStrike {
     private Region region;
 
     @Column(name = "strike_date")
-    private Date strikeDate;
+    private LocalDateTime strikeDate;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         RocketStrike that = (RocketStrike) o;
-        return Objects.equals(region, that.region) &&
-                Math.abs(this.strikeDate.getTime() - that.strikeDate.getTime()) < MIN_15;
+        return Objects.equals(id, that.id) && Objects.equals(region, that.region) &&
+                ChronoUnit.MINUTES.between(strikeDate, that.strikeDate) <= MINUTES_DIFFERENCE;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(region, strikeDate);
+        return Objects.hash(id, region, strikeDate);
     }
 
     @Override

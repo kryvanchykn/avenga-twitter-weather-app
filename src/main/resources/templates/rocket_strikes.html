@@ -16,11 +16,11 @@
     <div class ="col-lg-6 col-md-6 col-sm-6 container justify-content-center card">
         <h1 class = "text-center"> Select period of time </h1>
         <div class = "card-body">
-            <form th:action="@{date}" method="POST">
+            <form th:action="@{/date}" method="POST">
                 <div class ="form-group">
                     <label> Since date </label>
                     <input
-                            type = "date"
+                            type = "datetime-local"
                             name = "sinceDate"
                             id = "sinceDate"
                             class = "form-control"
@@ -31,7 +31,7 @@
                 <div class ="form-group">
                     <label> Until date </label>
                     <input
-                            type = "date"
+                            type = "datetime-local"
                             name = "untilDate"
                             id = "untilDate"
                             class = "form-control"
@@ -69,9 +69,10 @@
         </tr>
         </thead>
         <tbody>
-        <tr th:each="rocketStrike : ${setRocketStrikes}">
+        <tr th:each="rocketStrike : ${listRocketStrikes}">
             <td th:text="${rocketStrike.region.regionalCentreUa}"></td>
-            <td th:text="${#dates.format(rocketStrike.strikeDate, 'dd-MM-yyyy hh:mm')}"></td>
+            <td th:text="${rocketStrike.strikeDate}"></td>
+<!--            <td th:text="${#dates.format(rocketStrike.strikeDate, 'dd-MM-yyyy hh:mm')}"></td>-->
             <td>
                 <a th:href = "@{/forecast/{id}(id=${rocketStrike.id})}"
                    class = "btn btn-primary">Show forecast</a>

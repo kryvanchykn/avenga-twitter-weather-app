@@ -41,7 +41,7 @@ public class WeatherServiceImpl implements WeatherService {
     }
 
     private static Weather mapWeather(JSONObject jsonWeather) throws JSONException {
-        System.out.println(jsonWeather);
+        log.debug(jsonWeather);
         Weather weather = new Weather();
 
         JSONObject weatherMain = jsonWeather.getJSONObject(MAIN);
