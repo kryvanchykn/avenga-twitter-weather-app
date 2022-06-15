@@ -35,15 +35,12 @@
             <h1 class = "text-center">Weather forecast</h1>
             <div class = "card-body">
                 <h2 th:text="'City: ' + ${rocketStrike.region.regionalCentreEn} + ', UA'"></h2>
-                <h3 th:text="'Date: ' + ${#dates.format(rocketStrike.strikeDate, 'dd-MM-yyyy')}"></h3>
-                <h4 th:text="'Description: ' + ${weather.description}"></h4>
-                <h4 th:text="'Temperature: ' + ${weather.temp} + '&#176 F'"></h4>
-                <h4 th:text="'Feels like: ' + ${weather.feelsLike} + '&#176 F'"></h4>
-                <h4 th:text="'Min temperature: ' + ${weather.minTemp} + '&#176 F'"></h4>
-                <h4 th:text="'Max temperature: ' + ${weather.maxTemp} + '&#176 F'"></h4>
-                <h4 th:text="'Pressure: ' + ${weather.pressure} + 'hPa'"></h4>
+                <h3 th:text="'Date: ' + ${weather.time}"></h3>
+                <h4 th:text="'Temperature: ' + ${weather.temp} + '&#176 C'"></h4>
+                <h4 th:text="'Feels like: ' + ${weather.feelsLike} + '&#176 C'"></h4>
                 <h4 th:text="'Humidity: ' + ${weather.humidity} + '%'"></h4>
-                <h4 th:text="'Wind speed: ' + ${weather.wind} + 'mph'"></h4>
+                <h4 th:text="'Wind speed: ' + ${weather.windSpeed} + 'kph'"></h4>
+                <h4 th:text="'Clouds: ' + ${weather.cloud} + '%'"></h4>
             </div>
         </div>
     </div>

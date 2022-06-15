@@ -8,13 +8,11 @@ import java.util.List;
 import java.util.Set;
 
 public interface RocketStrikeService {
-    void getRocketStrikesFromTwitter(LocalDate sinceDate, LocalDate untilDate);
-    Set<RocketStrike> getRocketStrikesFromDB();
+    void saveRocketStrikesFromTwitter(LocalDate sinceDate, LocalDate untilDate);
+
     List<RocketStrike> getSortedRocketStrikesFromDB(LocalDateTime sinceDate, LocalDateTime untilDate,
                                                     String sortField, String sortDirection);
-    RocketStrike getRocketStrikeById(Long id);
-
     LocalDateTime getFirstRocketStrikeDate();
     LocalDateTime getLastRocketStrikeDate();
-
+    RocketStrike getRocketStrikeById(Long id);
 }

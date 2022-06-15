@@ -30,7 +30,7 @@ public class WeatherController {
     }
 
     @GetMapping("/forecast/{id}")
-    public String showForecast(@PathVariable Long id, Model model) throws JSONException {
+    public String showForecast(@PathVariable Long id, Model model) {
         RocketStrike rocketStrike = rocketStrikeService.getRocketStrikeById(id);
         Weather weather = weatherService.getWeather(rocketStrike);
 

@@ -10,10 +10,10 @@ public class TwitterAuth {
         ConfigurationBuilder cb = new ConfigurationBuilder();
         cb.setDebugEnabled(true);
         cb.setJSONStoreEnabled(true);
-        cb.setOAuthConsumerKey(System.getenv("CONSUMER_KEY"));
-        cb.setOAuthConsumerSecret(System.getenv("CONSUMER_SECRET"));
-        cb.setOAuthAccessToken(System.getenv("ACCESS_TOKEN"));
-        cb.setOAuthAccessTokenSecret(System.getenv("ACCESS_SECRET"));
+        cb.setOAuthConsumerKey(System.getenv("CONSUMER_KEY2"));
+        cb.setOAuthConsumerSecret(System.getenv("CONSUMER_SECRET2"));
+        cb.setOAuthAccessToken(System.getenv("ACCESS_TOKEN2"));
+        cb.setOAuthAccessTokenSecret(System.getenv("ACCESS_SECRET2"));
         cb.setHttpConnectionTimeout(100000);
 
         return new TwitterFactory(cb.build()).getInstance();

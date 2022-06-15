@@ -2,7 +2,6 @@ package com.example.avengatwitterweatherapp.service.impl;
 
 import com.example.avengatwitterweatherapp.model.Region;
 import com.example.avengatwitterweatherapp.model.RocketStrike;
-
 import com.example.avengatwitterweatherapp.repository.RocketStrikeRepository;
 import com.example.avengatwitterweatherapp.service.RegionService;
 import com.example.avengatwitterweatherapp.service.RocketStrikeService;
@@ -17,13 +16,10 @@ import twitter4j.Status;
 import twitter4j.Twitter;
 
 import java.time.*;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.example.avengatwitterweatherapp.constants.RegionConstants.*;
-import static com.example.avengatwitterweatherapp.constants.RegionConstants.REGION_ALT_NAME_NEW_END;
-import static com.example.avengatwitterweatherapp.constants.RocketStrikeConstants.SORT_BY_REGION;
 import static com.example.avengatwitterweatherapp.constants.TwitterConstants.*;
 
 @Service
@@ -40,21 +36,16 @@ public class RocketStrikeServiceImpl implements RocketStrikeService {
     }
 
     @Override
-    public void getRocketStrikesFromTwitter(LocalDate sinceDate, LocalDate untilDate) {
+    public void saveRocketStrikesFromTwitter(LocalDate sinceDate, LocalDate untilDate) {
         Twitter authObject;
         Set<RocketStrike> rocketStrikes;
         try {
             authObject = TwitterAuth.authenticate();
-            rocketStrikes = getRocketStrikes(authObject, regionService.getAllRegions(), sinceDate, untilDate);
+            rocketStrikes = findRocketStrikesInTwitter(authObject, regionService.getAllRegions(), sinceDate, untilDate);
             rocketStrikeRepository.saveAll(rocketStrikes);
         } catch (Exception e) {
             log.debug(e.getMessage());
         }
-    }
-
-    @Override
-    public Set<RocketStrike> getRocketStrikesFromDB() {
-        return new HashSet<>(rocketStrikeRepository.findAll());
     }
 
     @Override
@@ -64,12 +55,6 @@ public class RocketStrikeServiceImpl implements RocketStrikeService {
                 Sort.by(sortField).descending();
         return rocketStrikeRepository.findRocketStrikeByStrikeDateBetween(sinceDate, untilDate, sort);
     }
-
-    @Override
-    public RocketStrike getRocketStrikeById(Long id) {
-        return rocketStrikeRepository.findById(id).get();
-    }
-
 
     @Override
     public LocalDateTime getFirstRocketStrikeDate() {
@@ -87,9 +72,13 @@ public class RocketStrikeServiceImpl implements RocketStrikeService {
                 .orElse(rocketStrike).getStrikeDate();
     }
 
+    @Override
+    public RocketStrike getRocketStrikeById(Long id) {
+        return rocketStrikeRepository.findById(id).get();
+    }
 
-    public Set<RocketStrike> getRocketStrikes(Twitter authObject, List<Region> regions,
-                                              LocalDate sinceDate, LocalDate untilDate) {
+    public Set<RocketStrike> findRocketStrikesInTwitter(Twitter authObject, List<Region> regions,
+                                                        LocalDate sinceDate, LocalDate untilDate) {
         Set<RocketStrike> rocketStrikes = new HashSet<>();
         try {
             Query query = new Query();
@@ -109,30 +98,28 @@ public class RocketStrikeServiceImpl implements RocketStrikeService {
         return rocketStrikes;
     }
 
-    private static Set<RocketStrike> mapRocketStrike(List<Status> tweets, Region region){
+    private Set<RocketStrike> mapRocketStrike(List<Status> tweets, Region region){
         return tweets.stream().map(tweet -> {
             RocketStrike rocketStrike= new RocketStrike();
             rocketStrike.setRegion(region);
             Date input = tweet.getCreatedAt();
             Instant instant = input.toInstant();
-            ZonedDateTime zdt = instant.atZone(ZoneId.systemDefault());
+            ZonedDateTime zdt = instant.atZone(ZoneId.of("Europe/Kiev"));
             LocalDateTime date = zdt.toLocalDateTime();
             rocketStrike.setStrikeDate(date);
-            log.debug("created at1: " + tweet.getCreatedAt());
-            log.debug("created at2: " + date);
             log.debug(rocketStrike);
             return rocketStrike;
         }).collect(Collectors.toSet());
     }
 
-    private static String formQueries(Region region, LocalDate sinceDate, LocalDate untilDate){
+    private String formQueries(Region region, LocalDate sinceDate, LocalDate untilDate){
         String usersQuery = FROM + String.join(OR + FROM, USERS);
         String keywordsQuery = String.join(OR, KEYWORDS);
         log.debug( usersQuery + SINCE + sinceDate + UNTIL + untilDate + formRegionQuery(region) + AND + keywordsQuery);
         return usersQuery + SINCE + sinceDate + UNTIL + untilDate + formRegionQuery(region) + AND + keywordsQuery;
     }
 
-    private static String formRegionQuery(Region region){
+    private String formRegionQuery(Region region){
         String formattedRegionName = region.getRegionName().substring(0, region.getRegionName().length() - REGION_NAME_SUBS_NUMBER)
                 + REGION_NAME_NEW_END;
         String formattedAltRegionName = region.getRegionAltName().substring(0, region.getRegionAltName().length() -

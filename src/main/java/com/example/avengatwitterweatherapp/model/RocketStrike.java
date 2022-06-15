@@ -32,7 +32,7 @@ public class RocketStrike {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         RocketStrike that = (RocketStrike) o;
-        return Objects.equals(id, that.id) && Objects.equals(region, that.region) &&
+        return Objects.equals(region, that.region) &&
                 ChronoUnit.MINUTES.between(strikeDate, that.strikeDate) <= MINUTES_DIFFERENCE;
     }
 

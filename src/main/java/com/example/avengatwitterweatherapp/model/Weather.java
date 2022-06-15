@@ -1,44 +1,44 @@
 package com.example.avengatwitterweatherapp.model;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.*;
-import java.util.Date;
-
 @Getter
 @Setter
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Weather {
-    private String description;
-    private double temp;
 
-    @Column(name="min_temp")
-    private double minTemp;
+    @JsonProperty("time")
+    private String time;
 
-    @Column(name="max_temp")
-    private double maxTemp;
+    @JsonProperty("temp_c")
+    private String temp;
 
-    private double pressure;
+    @JsonProperty("wind_kph")
+    private double windSpeed;
 
-    private double humidity;
+    @JsonProperty("humidity")
+    private int humidity;
 
-    private double wind;
-
-    @Column(name="feels_like")
+    @JsonProperty("feelslike_c")
     private double feelsLike;
+
+    @JsonProperty("cloud")
+    private int cloud;
 
     @Override
     public String toString() {
         return "Weather{" +
-                "description='" + description + '\'' +
-                ", temp=" + temp +
-                ", minTemp=" + minTemp +
-                ", maxTemp=" + maxTemp +
-                ", pressure=" + pressure +
+                "time='" + time + '\'' +
+                ", temp='" + temp + '\'' +
+                ", windKPH=" + windSpeed +
                 ", humidity=" + humidity +
-                ", wind=" + wind +
-                ", feelsLike=" + feelsLike +
+                ", feelslike=" + feelsLike +
+                ", cloud=" + cloud +
                 '}';
     }
 }
+

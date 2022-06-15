@@ -2,6 +2,7 @@ package com.example.avengatwitterweatherapp.controller;
 
 import com.example.avengatwitterweatherapp.model.RocketStrike;
 import com.example.avengatwitterweatherapp.service.RocketStrikeService;
+import com.example.avengatwitterweatherapp.utils.RocketStrikeTimeFilter;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
@@ -31,10 +32,11 @@ public class RocketStrikeController {
 
     @GetMapping("/")
     public String viewRecentRocketStrikes(@RequestParam(name="sortField", defaultValue=SORT_BY_REGION) String sortField,
-                                    @RequestParam(name="sortDir", defaultValue=ASC_ORDER) String sortDir,
-                                    Model model){
-        LocalDateTime sinceDate = LocalDateTime.now().with(LocalTime.MIN).minusDays(1);
-        LocalDateTime untilDate = LocalDateTime.now();
+                                          @RequestParam(name="sortDir", defaultValue=ASC_ORDER) String sortDir,
+                                          Model model){
+
+        LocalDateTime sinceDate = LocalDateTime.now().with(LocalTime.MIN);
+        LocalDateTime untilDate = LocalDateTime.now().plusDays(1);
         List<RocketStrike> rocketStrikesFromDB = new ArrayList<>();
 
         while(rocketStrikesFromDB.size() == 0 && !sinceDate.equals(SINCE_DATE)){
@@ -43,7 +45,7 @@ public class RocketStrikeController {
             log.debug("today rocket strikes number:  " + rocketStrikesFromDB.size());
 
             if(rocketStrikesFromDB.size() == 0){
-                rocketStrikeService.getRocketStrikesFromTwitter(sinceDate.toLocalDate(), untilDate.toLocalDate());
+                rocketStrikeService.saveRocketStrikesFromTwitter(sinceDate.toLocalDate(), untilDate.toLocalDate());
                 model.addAttribute("listRocketStrikes",
                         rocketStrikeService.getSortedRocketStrikesFromDB(sinceDate, untilDate, sortField, sortDir));
             } else {
@@ -62,7 +64,7 @@ public class RocketStrikeController {
     }
 
 
-    @PostMapping("/date")
+    @PostMapping("/getByDate")
     public String viewRocketStrikesByDate(@ModelAttribute("sinceDate") String sinceDateStr,
                                           @ModelAttribute("untilDate") String untilDateStr,
                                           @RequestParam(name="sortField", defaultValue=SORT_BY_REGION) String sortField,
@@ -78,19 +80,24 @@ public class RocketStrikeController {
         LocalDateTime lastRocketStrikeDate = rocketStrikeService.getLastRocketStrikeDate();
 
         if (rocketStrikesFromDB.size() == 0)
-            rocketStrikeService.getRocketStrikesFromTwitter(sinceDate.toLocalDate(), untilDate.toLocalDate());
+            rocketStrikeService.saveRocketStrikesFromTwitter(sinceDate.toLocalDate(), untilDate.toLocalDate());
         else {
             if (firstRocketStrikeDate.isAfter(sinceDate)) {
-                rocketStrikeService.getRocketStrikesFromTwitter(sinceDate.toLocalDate(), firstRocketStrikeDate.toLocalDate());
+                rocketStrikeService.saveRocketStrikesFromTwitter(sinceDate.toLocalDate(), firstRocketStrikeDate.toLocalDate());
+                log.debug(1);
             }
             if (lastRocketStrikeDate.isBefore(untilDate)) {
-                rocketStrikeService.getRocketStrikesFromTwitter(lastRocketStrikeDate.toLocalDate(), untilDate.toLocalDate());
+                rocketStrikeService.saveRocketStrikesFromTwitter(lastRocketStrikeDate.toLocalDate(), untilDate.toLocalDate());
+                log.debug(2);
             }
         }
 
-        List<RocketStrike> rocketStrikesBetweenDates = rocketStrikeService.getSortedRocketStrikesFromDB(sinceDate, untilDate, sortField, sortDir);
-        model.addAttribute("listRocketStrikes", rocketStrikesBetweenDates);
-        return "rocket_strikes.html";
+        List<RocketStrike> rocketStrikesBetweenDates = rocketStrikeService.getSortedRocketStrikesFromDB(sinceDate, untilDate.plusDays(1), sortField, sortDir);
+        for(RocketStrike rs: rocketStrikesBetweenDates){
+            log.debug(rs);
+        }
+        model.addAttribute("listRocketStrikes", RocketStrikeTimeFilter.filterByTime(sinceDate, untilDate, rocketStrikesBetweenDates));
+        return "show_rocket_strikes.html";
     }
 
 
