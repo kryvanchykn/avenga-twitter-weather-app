@@ -16,7 +16,7 @@
     <div class ="col-lg-6 col-md-6 col-sm-6 container justify-content-center card">
         <h1 class = "text-center"> Select period of time </h1>
         <div class = "card-body">
-            <form th:action="@{/getByDate}" method="POST">
+            <form th:action="@{/getFilteredRocketStrikes}" method="POST">
                 <div class ="form-group">
                     <label> Since date </label>
                     <input
@@ -25,6 +25,9 @@
                             id = "sinceDate"
                             class = "form-control"
                             placeholder="Enter start date"
+                            min="2022-02-24T00:00"
+                            value="2022-06-01T00:00"
+                            required
                     />
                 </div>
 
@@ -36,7 +39,18 @@
                             id = "untilDate"
                             class = "form-control"
                             placeholder="Enter end date"
+                            min="2022-02-24T00:00"
+                            value="2022-06-01T00:00"
+                            required
                     />
+                </div>
+
+                <div>
+                    <div th:each="region : ${listRegions}">
+                        <input type="checkbox" th:id="${region.id}"
+                               name="checkedRegions" th:value="${region.id}">
+                        <label th:for="${region.regionalCentreUa}" th:text="${region.regionalCentreUa}"></label>
+                    </div>
                 </div>
 
                 <div class = "box-footer">
@@ -71,8 +85,7 @@
         <tbody>
         <tr th:each="rocketStrike : ${listRocketStrikes}">
             <td th:text="${rocketStrike.region.regionalCentreUa}"></td>
-            <td th:text="${rocketStrike.strikeDate}"></td>
-<!--            <td th:text="${#dates.format(rocketStrike.strikeDate, 'dd-MM-yyyy hh:mm')}"></td>-->
+            <td th:text="${#temporals.format(rocketStrike.strikeDate, 'MM/dd/yyyy hh:mm a')}"></td>
             <td>
                 <a th:href = "@{/forecast/{id}(id=${rocketStrike.id})}"
                    class = "btn btn-primary">Show forecast</a>

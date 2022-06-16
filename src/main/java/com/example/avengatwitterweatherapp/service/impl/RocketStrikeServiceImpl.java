@@ -6,6 +6,7 @@ import com.example.avengatwitterweatherapp.repository.RocketStrikeRepository;
 import com.example.avengatwitterweatherapp.service.RegionService;
 import com.example.avengatwitterweatherapp.service.RocketStrikeService;
 import com.example.avengatwitterweatherapp.twitter.TwitterAuth;
+import com.example.avengatwitterweatherapp.utils.RocketStrikeTimeFilter;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.springframework.data.domain.Sort;
@@ -16,6 +17,7 @@ import twitter4j.Status;
 import twitter4j.Twitter;
 
 import java.time.*;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -36,12 +38,70 @@ public class RocketStrikeServiceImpl implements RocketStrikeService {
     }
 
     @Override
-    public void saveRocketStrikesFromTwitter(LocalDate sinceDate, LocalDate untilDate) {
-        Twitter authObject;
+    public List<RocketStrike> getRecentRocketStrikes(String sortField, String sortDir) {
+        LocalDateTime sinceDate = LocalDateTime.now().with(LocalTime.MIN);
+        LocalDateTime untilDate = LocalDateTime.now().plusDays(1);
+        List<RocketStrike> rocketStrikesFromDB = new ArrayList<>();
+        List<RocketStrike> recentRocketStrikes = new ArrayList<>();
+
+        while(rocketStrikesFromDB.size() == 0 && !sinceDate.equals(SINCE_DATE)){
+            rocketStrikesFromDB = getRocketStrikesFromDB(sinceDate, untilDate, regionService.getAllRegions(),
+                    sortField, sortDir);
+
+            if(rocketStrikesFromDB.size() == 0) {
+                saveRocketStrikesFromTwitter(sinceDate.toLocalDate(), untilDate.toLocalDate(), regionService.getAllRegions());
+                rocketStrikesFromDB = getRocketStrikesFromDB(sinceDate, untilDate, regionService.getAllRegions(),
+                        sortField, sortDir);
+            }
+            recentRocketStrikes =  rocketStrikesFromDB;
+
+            log.debug("since to:  " + sinceDate.toLocalDate() + ' ' + untilDate.toLocalDate());
+            log.debug("today rocket strikes number:  " + rocketStrikesFromDB.size());
+
+            sinceDate = sinceDate.minusDays(1);
+            untilDate = untilDate.minusDays(1);
+        }
+        return recentRocketStrikes;
+    }
+
+    @Override
+    public List<RocketStrike> getFilteredRocketStrikes(String sinceDateStr, String untilDateStr, List<Region> regions,
+                                                       String sortField, String sortDir) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
+        LocalDateTime sinceDate = LocalDateTime.parse(sinceDateStr, formatter);
+        LocalDateTime untilDate = LocalDateTime.parse(untilDateStr, formatter);
+
+        List<RocketStrike> rocketStrikesFromDB = getRocketStrikesFromDB(sinceDate, untilDate, regions, sortField, sortDir);
+        LocalDateTime firstRocketStrikeDate = getFirstRocketStrikeDate();
+        LocalDateTime lastRocketStrikeDate = getLastRocketStrikeDate();
+
+        if (rocketStrikesFromDB.size() == 0)
+            saveRocketStrikesFromTwitter(sinceDate.toLocalDate(), untilDate.toLocalDate(), regions);
+        else {
+            if (firstRocketStrikeDate.isAfter(sinceDate)) {
+                saveRocketStrikesFromTwitter(sinceDate.toLocalDate(), firstRocketStrikeDate.toLocalDate(), regions);
+                log.debug(1);
+            }
+            if (lastRocketStrikeDate.isBefore(untilDate)) {
+                saveRocketStrikesFromTwitter(lastRocketStrikeDate.toLocalDate(), untilDate.toLocalDate(), regions);
+                log.debug(2);
+            }
+        }
+
+        List<RocketStrike> rocketStrikesBetweenDates = getRocketStrikesFromDB(sinceDate, untilDate.plusDays(1),
+                regions, sortField, sortDir);
+        for(RocketStrike rs: rocketStrikesBetweenDates){
+            log.debug(rs);
+        }
+
+        return RocketStrikeTimeFilter.filterByTime(sinceDate, untilDate, rocketStrikesBetweenDates);
+    }
+
+    @Override
+    public void saveRocketStrikesFromTwitter(LocalDate sinceDate, LocalDate untilDate, List<Region> regions) {
         Set<RocketStrike> rocketStrikes;
         try {
-            authObject = TwitterAuth.authenticate();
-            rocketStrikes = findRocketStrikesInTwitter(authObject, regionService.getAllRegions(), sinceDate, untilDate);
+            rocketStrikes = findRocketStrikesInTwitter(regions, sinceDate, untilDate);
             rocketStrikeRepository.saveAll(rocketStrikes);
         } catch (Exception e) {
             log.debug(e.getMessage());
@@ -49,11 +109,18 @@ public class RocketStrikeServiceImpl implements RocketStrikeService {
     }
 
     @Override
-    public List<RocketStrike> getSortedRocketStrikesFromDB(LocalDateTime sinceDate, LocalDateTime untilDate,
-                                                     String sortField, String sortDirection) {
+    public List<RocketStrike> getRocketStrikesFromDB(LocalDateTime sinceDate, LocalDateTime untilDate,
+                                                           List<Region> regions, String sortField, String sortDirection) {
         Sort sort = sortDirection.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortField).ascending() :
                 Sort.by(sortField).descending();
-        return rocketStrikeRepository.findRocketStrikeByStrikeDateBetween(sinceDate, untilDate, sort);
+
+        List<RocketStrike> sortedRocketStrikesFromDB = new ArrayList<>();
+        for (Region region: regions) {
+            sortedRocketStrikesFromDB.addAll(rocketStrikeRepository.findRocketStrikeByStrikeDateBetweenAndRegion(sinceDate,
+                    untilDate, region, sort));
+        }
+
+        return sortedRocketStrikesFromDB;
     }
 
     @Override
@@ -77,10 +144,11 @@ public class RocketStrikeServiceImpl implements RocketStrikeService {
         return rocketStrikeRepository.findById(id).get();
     }
 
-    public Set<RocketStrike> findRocketStrikesInTwitter(Twitter authObject, List<Region> regions,
+    public Set<RocketStrike> findRocketStrikesInTwitter(List<Region> regions,
                                                         LocalDate sinceDate, LocalDate untilDate) {
         Set<RocketStrike> rocketStrikes = new HashSet<>();
         try {
+            Twitter authObject = TwitterAuth.authenticate();
             Query query = new Query();
             QueryResult result;
             for (Region region : regions) {

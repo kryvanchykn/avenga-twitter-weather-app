@@ -4,6 +4,10 @@ import com.example.avengatwitterweatherapp.model.RocketStrike;
 import com.example.avengatwitterweatherapp.service.impl.RocketStrikeServiceImpl;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.thymeleaf.extras.java8time.dialect.Java8TimeDialect;
+import org.thymeleaf.spring5.ISpringTemplateEngine;
+import org.thymeleaf.spring5.SpringTemplateEngine;
+import org.thymeleaf.templateresolver.ITemplateResolver;
 
 import java.time.LocalDateTime;
 import java.util.List;

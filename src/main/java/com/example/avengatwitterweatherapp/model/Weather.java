@@ -5,6 +5,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -15,7 +18,7 @@ public class Weather {
     private String time;
 
     @JsonProperty("temp_c")
-    private String temp;
+    private double temp;
 
     @JsonProperty("wind_kph")
     private double windSpeed;
