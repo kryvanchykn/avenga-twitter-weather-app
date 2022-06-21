@@ -11,11 +11,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class CheckedRegionsIdListConstraintValidator implements ConstraintValidator<RegionsIdListConstraint, List<Long>> {
-    private static final Logger log = LogManager.getLogger(CheckedRegionsIdListConstraintValidator.class);
+public class RegionsIdListConstraintValidator implements ConstraintValidator<RegionsIdListConstraint, List<Long>> {
+    private static final Logger log = LogManager.getLogger(RegionsIdListConstraintValidator.class);
     private final RegionService regionService;
 
-    public CheckedRegionsIdListConstraintValidator(RegionService regionService) {
+    public RegionsIdListConstraintValidator(RegionService regionService) {
         this.regionService = regionService;
     }
 

@@ -5,7 +5,7 @@ import javax.validation.Payload;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-@Constraint(validatedBy = CheckedRegionsIdListConstraintValidator.class)
+@Constraint(validatedBy = RegionsIdListConstraintValidator.class)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RegionsIdListConstraint {
     String message() default "The input list should contain valid regions' id";

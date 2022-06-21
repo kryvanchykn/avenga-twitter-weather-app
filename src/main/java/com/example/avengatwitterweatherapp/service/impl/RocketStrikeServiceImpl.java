@@ -151,7 +151,7 @@ public class RocketStrikeServiceImpl implements RocketStrikeService {
     }
 
     @Override
-    public RocketStrikeDto validateRocketStrikeParamsWrapper(RocketStrikeDto paramsWrapper){
+    public RocketStrikeDto setDefaultForRocketStrikeDto(RocketStrikeDto paramsWrapper){
         if (paramsWrapper.getSinceDate() == null) {
             paramsWrapper.setSinceDate(String.valueOf(SINCE_DATE));
         }

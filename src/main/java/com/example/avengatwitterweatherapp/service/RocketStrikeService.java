@@ -19,5 +19,5 @@ public interface RocketStrikeService {
     LocalDateTime getLastRocketStrikeDateRecord(Region region);
     RocketStrike getRocketStrikeById(Long id);
 
-    RocketStrikeDto validateRocketStrikeParamsWrapper(RocketStrikeDto paramsWrapper);
+    RocketStrikeDto setDefaultForRocketStrikeDto(RocketStrikeDto paramsWrapper);
 }

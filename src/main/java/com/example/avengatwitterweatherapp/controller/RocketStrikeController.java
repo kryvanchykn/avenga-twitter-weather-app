@@ -70,7 +70,7 @@ public class RocketStrikeController {
 
     @PostMapping("/getFilteredRocketStrikes")
     public List<RocketStrike> viewFilteredRocketStrikes(@RequestBody @Valid RocketStrikeDto paramsWrapper) {
-        paramsWrapper = rocketStrikeService.validateRocketStrikeParamsWrapper(paramsWrapper);
+        paramsWrapper = rocketStrikeService.setDefaultForRocketStrikeDto(paramsWrapper);
         List<Region> checkedRegions = regionService.getRegionsById(paramsWrapper.getCheckedRegionsId());
         return rocketStrikeService.getFilteredRocketStrikes(paramsWrapper.getSinceDate(),
                 paramsWrapper.getUntilDate(), checkedRegions, paramsWrapper.getSortField(), paramsWrapper.getSortDir());
