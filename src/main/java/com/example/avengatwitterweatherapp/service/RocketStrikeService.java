@@ -2,6 +2,7 @@ package com.example.avengatwitterweatherapp.service;
 
 import com.example.avengatwitterweatherapp.model.Region;
 import com.example.avengatwitterweatherapp.model.RocketStrike;
+import com.example.avengatwitterweatherapp.dto.RocketStrikeDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -17,4 +18,6 @@ public interface RocketStrikeService {
     LocalDateTime getFirstRocketStrikeDateRecord(Region region);
     LocalDateTime getLastRocketStrikeDateRecord(Region region);
     RocketStrike getRocketStrikeById(Long id);
+
+    RocketStrikeDto validateRocketStrikeParamsWrapper(RocketStrikeDto paramsWrapper);
 }

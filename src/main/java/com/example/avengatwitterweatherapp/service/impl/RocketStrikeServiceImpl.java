@@ -3,6 +3,7 @@ package com.example.avengatwitterweatherapp.service.impl;
 import com.example.avengatwitterweatherapp.exceptions.RocketStrikeNotFoundException;
 import com.example.avengatwitterweatherapp.model.Region;
 import com.example.avengatwitterweatherapp.model.RocketStrike;
+import com.example.avengatwitterweatherapp.dto.RocketStrikeDto;
 import com.example.avengatwitterweatherapp.repository.RocketStrikeRepository;
 import com.example.avengatwitterweatherapp.service.RegionService;
 import com.example.avengatwitterweatherapp.service.RocketStrikeService;
@@ -21,8 +22,7 @@ import java.util.stream.Collectors;
 
 import static com.example.avengatwitterweatherapp.constants.RocketStrikeConstants.ASC_ORDER;
 import static com.example.avengatwitterweatherapp.constants.RocketStrikeConstants.SORT_BY_REGION;
-import static com.example.avengatwitterweatherapp.constants.TwitterConstants.SINCE_DATE;
-import static com.example.avengatwitterweatherapp.constants.TwitterConstants.UNTIL_DATE;
+import static com.example.avengatwitterweatherapp.constants.TwitterConstants.*;
 
 @Service
 public class RocketStrikeServiceImpl implements RocketStrikeService {
@@ -148,6 +148,27 @@ public class RocketStrikeServiceImpl implements RocketStrikeService {
             throw new RocketStrikeNotFoundException("Weather forecast for rocket strike with id=" + id + " is not found",
                     ex);
         }
+    }
+
+    @Override
+    public RocketStrikeDto validateRocketStrikeParamsWrapper(RocketStrikeDto paramsWrapper){
+        if (paramsWrapper.getSinceDate() == null) {
+            paramsWrapper.setSinceDate(String.valueOf(SINCE_DATE));
+        }
+        if (paramsWrapper.getUntilDate() == null) {
+            paramsWrapper.setUntilDate(String.valueOf(UNTIL_DATE.truncatedTo(ChronoUnit.MINUTES)));
+        }
+        if (paramsWrapper.getCheckedRegionsId() == null) {
+            paramsWrapper.setCheckedRegionsId(regionService.getAllRegions().stream().map(Region::getId)
+                    .collect(Collectors.toList()));
+        }
+        if (paramsWrapper.getSortField() == null) {
+            paramsWrapper.setSortField(SORT_BY_REGION);
+        }
+        if (paramsWrapper.getSortDir() == null) {
+            paramsWrapper.setSortDir(ASC_ORDER);
+        }
+        return paramsWrapper;
     }
 
     private List<RocketStrike> filterByTime(LocalDateTime sinceDate, LocalDateTime untilDate,

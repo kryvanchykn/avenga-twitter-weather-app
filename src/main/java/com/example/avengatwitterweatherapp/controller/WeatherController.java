@@ -5,24 +5,13 @@ import com.example.avengatwitterweatherapp.model.RocketStrike;
 import com.example.avengatwitterweatherapp.model.Weather;
 import com.example.avengatwitterweatherapp.service.RocketStrikeService;
 import com.example.avengatwitterweatherapp.service.WeatherService;
-import com.example.avengatwitterweatherapp.service.impl.WeatherServiceImpl;
-import netscape.javascript.JSObject;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import org.springframework.boot.configurationprocessor.json.JSONArray;
-import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-
-import javax.servlet.http.HttpServletResponse;
-
-import static com.example.avengatwitterweatherapp.constants.WeatherConstants.*;
 
 @RestController
 public class WeatherController {
@@ -47,7 +36,7 @@ public class WeatherController {
 //    }
 
     @GetMapping("/forecast/{id}")
-    public Weather showForecast(@PathVariable Long id, HttpServletResponse response) {
+    public Weather showForecast(@PathVariable Long id) {
         try{
             RocketStrike rocketStrike = rocketStrikeService.getRocketStrikeById(id);
             return weatherService.getWeather(rocketStrike);

@@ -2,20 +2,17 @@ package com.example.avengatwitterweatherapp.controller;
 
 import com.example.avengatwitterweatherapp.model.Region;
 import com.example.avengatwitterweatherapp.model.RocketStrike;
-import com.example.avengatwitterweatherapp.model.RocketStrikeParamsWrapper;
+import com.example.avengatwitterweatherapp.dto.RocketStrikeDto;
 import com.example.avengatwitterweatherapp.service.RegionService;
 import com.example.avengatwitterweatherapp.service.RocketStrikeService;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 import static com.example.avengatwitterweatherapp.constants.RocketStrikeConstants.*;
-import static com.example.avengatwitterweatherapp.constants.TwitterConstants.SINCE_DATE;
-import static com.example.avengatwitterweatherapp.constants.TwitterConstants.UNTIL_DATE;
 
 @RestController
 public class RocketStrikeController {
@@ -72,7 +69,8 @@ public class RocketStrikeController {
 
 
     @PostMapping("/getFilteredRocketStrikes")
-    public List<RocketStrike> viewFilteredRocketStrikes(@RequestBody RocketStrikeParamsWrapper paramsWrapper) {
+    public List<RocketStrike> viewFilteredRocketStrikes(@RequestBody @Valid RocketStrikeDto paramsWrapper) {
+        paramsWrapper = rocketStrikeService.validateRocketStrikeParamsWrapper(paramsWrapper);
         List<Region> checkedRegions = regionService.getRegionsById(paramsWrapper.getCheckedRegionsId());
         return rocketStrikeService.getFilteredRocketStrikes(paramsWrapper.getSinceDate(),
                 paramsWrapper.getUntilDate(), checkedRegions, paramsWrapper.getSortField(), paramsWrapper.getSortDir());
