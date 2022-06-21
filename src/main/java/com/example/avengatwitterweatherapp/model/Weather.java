@@ -3,16 +3,12 @@ package com.example.avengatwitterweatherapp.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
-import lombok.Setter;
-import org.springframework.format.annotation.DateTimeFormat;
+import lombok.Data;
 
-import java.time.LocalDateTime;
-
-@Getter
-@Setter
+@Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Weather {
+    private Region region;
 
     @JsonProperty("time")
     private String time;
@@ -31,17 +27,5 @@ public class Weather {
 
     @JsonProperty("cloud")
     private int cloud;
-
-    @Override
-    public String toString() {
-        return "Weather{" +
-                "time='" + time + '\'' +
-                ", temp='" + temp + '\'' +
-                ", windKPH=" + windSpeed +
-                ", humidity=" + humidity +
-                ", feelslike=" + feelsLike +
-                ", cloud=" + cloud +
-                '}';
-    }
 }
 

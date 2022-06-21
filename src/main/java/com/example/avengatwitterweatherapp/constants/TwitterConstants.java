@@ -1,6 +1,5 @@
 package com.example.avengatwitterweatherapp.constants;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -11,7 +10,7 @@ public class TwitterConstants {
             .collect(Collectors.toSet());
     public static final Set<String> KEYWORDS = Stream.of("ракетний", "удар", "вибухи", "ракета")
             .collect(Collectors.toSet());
-    public static final LocalDateTime SINCE_DATE = LocalDateTime.of(2022, 6, 1, 0, 0, 0);
+    public static final LocalDateTime SINCE_DATE = LocalDateTime.of(2022, 6, 9, 0, 0, 0);
     public static final LocalDateTime UNTIL_DATE = LocalDateTime.now().plusDays(1);
     public static final String OR = " OR ";
     public static final String AND = " AND ";

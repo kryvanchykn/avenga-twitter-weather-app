@@ -1,21 +1,18 @@
 package com.example.avengatwitterweatherapp.model;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import javax.persistence.*;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
 import java.util.Objects;
 
 import static com.example.avengatwitterweatherapp.constants.RocketStrikeConstants.MINUTES_DIFFERENCE;
 
 @Entity
-@Table(name = "rocket_strikes")
-@Getter
-@Setter
+@Table(name = "rocket_strikes", uniqueConstraints = {
+        @UniqueConstraint(name = "UniqueRegionAndDate", columnNames = {"region_id", "strike_date"})})
+@Data
 public class RocketStrike {
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
@@ -38,15 +35,6 @@ public class RocketStrike {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, region, strikeDate);
-    }
-
-    @Override
-    public String toString() {
-        return "RocketStrike{" +
-                "id=" + id +
-                ", region=" + region +
-                ", strikeDate=" + strikeDate +
-                '}';
+        return Objects.hash(region, strikeDate);
     }
 }

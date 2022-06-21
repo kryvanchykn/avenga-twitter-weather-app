@@ -10,15 +10,12 @@
 </head>
 <body>
 <nav class="navbar navbar-expand-md bg-dark navbar-dark">
-    <!-- Brand -->
     <a class="navbar-brand" href="#">Weather forecast</a>
 
-    <!-- Toggler/collapsibe Button -->
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
         <span class="navbar-toggler-icon"></span>
     </button>
 
-    <!-- Navbar links -->
     <div class="collapse navbar-collapse" id="collapsibleNavbar">
         <ul class="navbar-nav">
             <li class="nav-item">
@@ -34,7 +31,7 @@
         <div class ="col-lg-6 col-md-6 col-sm-6 container justify-content-center card">
             <h1 class = "text-center">Weather forecast</h1>
             <div class = "card-body">
-                <h2 th:text="'City: ' + ${rocketStrike.region.regionalCentreEn} + ', UA'"></h2>
+                <h2 th:text="'City: ' + ${rocketStrike.region.regionalCentre} + ', UA'"></h2>
                 <h3 th:text="'Date: ' + ${weather.time}"></h3>
                 <h4 th:text="'Temperature: ' + ${weather.temp} + '&#176 C'"></h4>
                 <h4 th:text="'Feels like: ' + ${weather.feelsLike} + '&#176 C'"></h4>

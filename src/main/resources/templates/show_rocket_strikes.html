@@ -46,10 +46,28 @@
                 </div>
 
                 <div>
+                    <label for="sortField">Choose sorting field:</label>
+                    <select name="sortField" id="sortField">
+                    <span th:each="sortField : ${listSortFields}">
+                        <option th:value="${sortField}" th:text="${sortField}"></option>
+                    </span>
+                    </select>
+
+                    <label for="sortDir">Choose sorting direction:</label>
+                    <select name="sortDir" id="sortDir">
+                    <span th:each="sortDir : ${listSortDir}">
+                        <option th:value="${sortDir}" th:text="${sortDir}"></option>
+                    </span>
+                    </select>
+                </div>
+
+                <div>
+                    <input type="checkbox" onClick="toggle(this)" /> Select All<br/>
+
                     <div th:each="region : ${listRegions}">
                         <input type="checkbox" th:id="${region.id}"
                                name="checkedRegions" th:value="${region.id}">
-                        <label th:for="${region.regionalCentreUa}" th:text="${region.regionalCentreUa}"></label>
+                        <label th:for="${region.regionalCentre}" th:text="${region.regionalCentre}"></label>
                     </div>
                 </div>
 
@@ -71,20 +89,14 @@
     <table border="1" class = "table table-striped table-responsive-md">
         <thead>
         <tr>
-            <th>
-                <a th:href="@{'/?sortField=region&sortDir=' + ${reverseSortDir}}">
-                    Region</a>
-            </th>
-            <th>
-                <a th:href="@{'/?sortField=strikeDate&sortDir=' + ${reverseSortDir}}">
-                    Date</a>
-            </th>
+            <th>Region</th>
+            <th>Date</th>
             <th>Action</th>
         </tr>
         </thead>
         <tbody>
         <tr th:each="rocketStrike : ${listRocketStrikes}">
-            <td th:text="${rocketStrike.region.regionalCentreUa}"></td>
+            <td th:text="${rocketStrike.region.regionalCentre}"></td>
             <td th:text="${#temporals.format(rocketStrike.strikeDate, 'MM/dd/yyyy hh:mm a')}"></td>
             <td>
                 <a th:href = "@{/forecast/{id}(id=${rocketStrike.id})}"
@@ -94,6 +106,6 @@
         </tbody>
     </table>
 </div>
-<script src="/static/date-validation.js"></script>
+<script src="/select-all-regions.js"></script>
 </body>
 </html>

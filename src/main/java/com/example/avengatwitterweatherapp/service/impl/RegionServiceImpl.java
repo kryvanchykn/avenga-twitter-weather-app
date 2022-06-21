@@ -5,10 +5,7 @@ import com.example.avengatwitterweatherapp.repository.RegionRepository;
 import com.example.avengatwitterweatherapp.service.RegionService;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class RegionServiceImpl implements RegionService {

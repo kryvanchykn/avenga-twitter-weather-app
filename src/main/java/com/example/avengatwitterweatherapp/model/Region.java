@@ -1,15 +1,14 @@
 package com.example.avengatwitterweatherapp.model;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import org.jetbrains.annotations.NotNull;
 
 import javax.persistence.*;
 
 @Entity
 @Table(name = "regions")
-@Getter
-@Setter
-public class Region {
+@Data
+public class Region implements Comparable<Region> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -20,21 +19,14 @@ public class Region {
     @Column(name = "region_alt_name")
     private String regionAltName;
 
-    @Column(name = "regional_centre_ua")
-    private String regionalCentreUa;
+    @Column(name = "regional_centre_weather")
+    private String regionalCentreWeather;
 
-    @Column(name = "regional_centre_en")
-    private String regionalCentreEn;
-
+    @Column(name = "regional_centre")
+    private String regionalCentre;
 
     @Override
-    public String toString() {
-        return "Region{" +
-                "id=" + id +
-                ", regionName='" + regionName + '\'' +
-                ", regionAltName='" + regionAltName + '\'' +
-                ", regionalCentreUa='" + regionalCentreUa + '\'' +
-                ", regionalCentreEn='" + regionalCentreEn + '\'' +
-                '}';
+    public int compareTo(@NotNull Region o) {
+        return this.getRegionName().compareTo(o.getRegionName());
     }
 }

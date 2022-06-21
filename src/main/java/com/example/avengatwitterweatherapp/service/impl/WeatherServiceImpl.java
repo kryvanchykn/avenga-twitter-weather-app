@@ -1,5 +1,6 @@
 package com.example.avengatwitterweatherapp.service.impl;
 
+import com.example.avengatwitterweatherapp.model.Region;
 import com.example.avengatwitterweatherapp.model.RocketStrike;
 import com.example.avengatwitterweatherapp.model.Weather;
 import com.example.avengatwitterweatherapp.service.WeatherService;
@@ -30,7 +31,7 @@ public class WeatherServiceImpl implements WeatherService {
         String APIkey = System.getenv("WEATHER_API_KEY");
         Request request = new Request.Builder()
                 .url("http://api.weatherapi.com/v1/history.json?key=" + APIkey + "&q=" +
-                        rocketStrike.getRegion().getRegionalCentreEn()+ "&dt="
+                        rocketStrike.getRegion().getRegionalCentreWeather()+ "&dt="
                         + rocketStrike.getStrikeDate().toLocalDate())
                 .build();
 
@@ -38,7 +39,7 @@ public class WeatherServiceImpl implements WeatherService {
 
             Response response = client.newCall(request).execute();
             assert response.body() != null;
-            return mapWeather(new JSONObject(response.body().string()), strikeHour);
+            return mapWeather(new JSONObject(response.body().string()), strikeHour, rocketStrike.getRegion());
         }catch (IOException | JSONException e){
             log.error(e.getMessage());
         }
@@ -46,11 +47,12 @@ public class WeatherServiceImpl implements WeatherService {
     }
 
 
-    private Weather mapWeather(JSONObject jsonWeather, int hour) throws JSONException, JsonProcessingException {
+    private Weather mapWeather(JSONObject jsonWeather, int hour, Region region) throws JSONException, JsonProcessingException {
         String hourArray = jsonWeather.getJSONObject(FORECAST).getJSONArray(FORECASTDAY).getJSONObject(0)
                 .getJSONArray(HOUR).toString();
         ObjectMapper mapper = new ObjectMapper();
         Weather[] weatherArray = mapper.readValue(hourArray, Weather[].class);
+        weatherArray[hour].setRegion(region);
         return weatherArray[hour];
     }
 
