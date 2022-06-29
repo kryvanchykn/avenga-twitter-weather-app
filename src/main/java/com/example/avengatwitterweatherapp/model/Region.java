@@ -1,13 +1,18 @@
 package com.example.avengatwitterweatherapp.model;
 
-import lombok.Data;
+import lombok.*;
 import org.jetbrains.annotations.NotNull;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @Entity
 @Table(name = "regions")
-@Data
+@Getter
+@Setter
+@ToString
+@AllArgsConstructor
+@NoArgsConstructor
 public class Region implements Comparable<Region> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,6 +32,21 @@ public class Region implements Comparable<Region> {
 
     @Override
     public int compareTo(@NotNull Region o) {
-        return this.getRegionName().compareTo(o.getRegionName());
+        return this.getRegionalCentre().compareTo(o.getRegionalCentre());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Region region = (Region) o;
+        return Objects.equals(regionName, region.regionName) && Objects.equals(regionAltName, region.regionAltName)
+                && Objects.equals(regionalCentreWeather, region.regionalCentreWeather)
+                && Objects.equals(regionalCentre, region.regionalCentre);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(regionName, regionAltName, regionalCentreWeather, regionalCentre);
     }
 }

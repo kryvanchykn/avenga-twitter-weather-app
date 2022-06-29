@@ -21,9 +21,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.example.avengatwitterweatherapp.constants.RegionConstants.*;
-import static com.example.avengatwitterweatherapp.constants.RegionConstants.REGION_ALT_NAME_NEW_END;
 import static com.example.avengatwitterweatherapp.constants.TwitterConstants.*;
-import static com.example.avengatwitterweatherapp.constants.TwitterConstants.OR;
 
 @Service
 public class TwitterServiceImpl implements TwitterService {
@@ -57,10 +55,12 @@ public class TwitterServiceImpl implements TwitterService {
         } catch (Exception e) {
             log.error(e.getMessage());
         }
-        log.debug("ROCKET STRIKES");
+
+        log.debug("Rocket strikes from twitter:");
         for (RocketStrike rocketStrike:rocketStrikes) {
             log.debug(rocketStrike);
         }
+
         return rocketStrikes;
     }
 
@@ -73,7 +73,6 @@ public class TwitterServiceImpl implements TwitterService {
             ZonedDateTime zdt = instant.atZone(ZoneId.of("Europe/Kiev"));
             LocalDateTime date = zdt.toLocalDateTime();
             rocketStrike.setStrikeDate(date);
-            log.debug(rocketStrike);
             return rocketStrike;
         }).collect(Collectors.toSet());
     }

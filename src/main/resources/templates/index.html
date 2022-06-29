@@ -15,7 +15,7 @@
     <div class ="col-lg-6 col-md-6 col-sm-6 container justify-content-center card">
         <h1 class = "text-center"> Select period of time </h1>
         <div class = "card-body">
-            <form th:action="@{getFilteredRocketStrikes}" method="POST">
+            <form th:action="@{mvc/getFilteredRocketStrikes}" method="POST">
                 <div class ="form-group">
                     <label> Since date </label>
                     <input
@@ -65,7 +65,7 @@
 
                     <div th:each="region : ${listRegions}">
                         <input type="checkbox" th:id="${region.id}"
-                               name="checkedRegions" th:value="${region.id}">
+                               name="checkedRegionsId" th:value="${region.id}">
                         <label th:for="${region.regionalCentre}" th:text="${region.regionalCentre}"></label>
                     </div>
                 </div>
@@ -99,7 +99,7 @@
             <td th:text="${rocketStrike.region.regionalCentre}"></td>
             <td th:text="${#temporals.format(rocketStrike.strikeDate, 'MM/dd/yyyy hh:mm a')}"></td>
             <td>
-                <a th:href = "@{/forecast/{id}(id=${rocketStrike.id})}"
+                <a th:href = "@{/mvc/forecast/(id=${rocketStrike.id})}"
                    class = "btn btn-primary">Show forecast</a>
             </td>
         </tr>

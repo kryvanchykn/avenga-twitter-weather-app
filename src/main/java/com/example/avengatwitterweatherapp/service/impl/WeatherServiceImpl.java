@@ -1,5 +1,6 @@
 package com.example.avengatwitterweatherapp.service.impl;
 
+import com.example.avengatwitterweatherapp.exceptions.WeatherForecastNotFoundException;
 import com.example.avengatwitterweatherapp.model.Region;
 import com.example.avengatwitterweatherapp.model.RocketStrike;
 import com.example.avengatwitterweatherapp.model.Weather;
@@ -13,7 +14,9 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
+import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.io.IOException;
 
@@ -39,16 +42,18 @@ public class WeatherServiceImpl implements WeatherService {
 
             Response response = client.newCall(request).execute();
             assert response.body() != null;
+            log.debug("response body is null");
             return mapWeather(new JSONObject(response.body().string()), strikeHour, rocketStrike.getRegion());
         }catch (IOException | JSONException e){
             log.error(e.getMessage());
         }
-        return null;
+        throw new WeatherForecastNotFoundException("Weather forecast for rocket strike with id=" + rocketStrike.getId()
+                + " not found, because strike date was more than week ago");
     }
 
 
     private Weather mapWeather(JSONObject jsonWeather, int hour, Region region) throws JSONException, JsonProcessingException {
-        String hourArray = jsonWeather.getJSONObject(FORECAST).getJSONArray(FORECASTDAY).getJSONObject(0)
+        String hourArray = jsonWeather.getJSONObject(FORECAST).getJSONArray(FORECAST_DAY).getJSONObject(0)
                 .getJSONArray(HOUR).toString();
         ObjectMapper mapper = new ObjectMapper();
         Weather[] weatherArray = mapper.readValue(hourArray, Weather[].class);

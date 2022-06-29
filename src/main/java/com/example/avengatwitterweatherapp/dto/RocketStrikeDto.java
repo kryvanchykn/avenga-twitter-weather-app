@@ -1,28 +1,41 @@
 package com.example.avengatwitterweatherapp.dto;
 
+import com.example.avengatwitterweatherapp.constraintValidator.CheckDateIntervalConstraint;
+import com.example.avengatwitterweatherapp.constraintValidator.EnumConstraint;
 import com.example.avengatwitterweatherapp.constraintValidator.RegionsIdListConstraint;
+import com.example.avengatwitterweatherapp.model.SortDir;
+import com.example.avengatwitterweatherapp.model.SortField;
 import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
 
-import javax.validation.constraints.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PastOrPresent;
+import java.time.LocalDateTime;
 import java.util.List;
 
+import static com.example.avengatwitterweatherapp.constants.RocketStrikeConstants.ASC_ORDER;
+import static com.example.avengatwitterweatherapp.constants.RocketStrikeConstants.SORT_BY_REGION;
+import static com.example.avengatwitterweatherapp.constants.TwitterConstants.BOUNDARY_DATE;
+
 @Data
+@CheckDateIntervalConstraint(sinceDateStr = "sinceDate", untilDateStr = "untilDate")
 public class RocketStrikeDto {
-    @Pattern(regexp = "2022-(?:0[1-9]|1[012])-(?:0[1-9]|[12][0-9]|3[01])T([0-1][0-9]|2[0-3]):([0-5][0-9])|null",
-            message = "sinceDate should match pattern yyyy-MM-dd'T'HH:mm")
-    String sinceDate;
+    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
+    @PastOrPresent
+    LocalDateTime sinceDate = BOUNDARY_DATE;
 
-    @Pattern(regexp = "2022-(?:0[1-9]|1[012])-(?:0[1-9]|[12][0-9]|3[01])T([0-1][0-9]|2[0-3]):([0-5][0-9])|null",
-            message = "untilDate should match pattern yyyy-MM-dd'T'HH:mm")
-    String untilDate;
+    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
+    @PastOrPresent
+    LocalDateTime untilDate = LocalDateTime.now();
 
-//    @Pattern(regexp = "\\[(?:\\d+,\\s*)+\\d+]")
+    @NotNull
     @RegionsIdListConstraint
     List<Long> checkedRegionsId;
 
-    @Pattern(regexp = "region|strikeDate|null", message = "sortField should be region or strikeDate only")
-    String sortField;
+    @EnumConstraint(enumClass = SortField.class)
+    String sortField = SORT_BY_REGION;
 
-    @Pattern(regexp = "asc|desc|null", message = "sortDir should be asc or desc only")
-    String sortDir;
+    @EnumConstraint(enumClass = SortDir.class)
+    String sortDir = ASC_ORDER;
+
 }

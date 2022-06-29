@@ -3,10 +3,14 @@ package com.example.avengatwitterweatherapp.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
+@ToString
 @JsonIgnoreProperties(ignoreUnknown = true)
+@NoArgsConstructor
+@AllArgsConstructor
 public class Weather {
     private Region region;
 

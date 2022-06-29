@@ -6,12 +6,11 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class TwitterConstants {
-    public static final Set<String> USERS = Stream.of("PushkarPavlo", "nakipeloua", "ICTV_Fakty")
+    public static final Set<String> USERS = Stream.of("5channel", "nakipeloua", "ICTV_Fakty", "EuropeanPravda", "tsnua")
             .collect(Collectors.toSet());
-    public static final Set<String> KEYWORDS = Stream.of("ракетний", "удар", "вибухи", "ракета")
+    public static final Set<String> KEYWORDS = Stream.of("ракетний", "удар", "вибухи", "ракета", "вибух")
             .collect(Collectors.toSet());
-    public static final LocalDateTime SINCE_DATE = LocalDateTime.of(2022, 6, 9, 0, 0, 0);
-    public static final LocalDateTime UNTIL_DATE = LocalDateTime.now().plusDays(1);
+    public static final LocalDateTime BOUNDARY_DATE = LocalDateTime.of(2022, 6, 9, 0, 0, 0);
     public static final String OR = " OR ";
     public static final String AND = " AND ";
     public static final String FROM = " from:";
