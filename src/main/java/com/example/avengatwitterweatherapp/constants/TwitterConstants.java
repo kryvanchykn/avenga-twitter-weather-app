@@ -10,7 +10,7 @@ public class TwitterConstants {
             .collect(Collectors.toSet());
     public static final Set<String> KEYWORDS = Stream.of("ракетний", "удар", "вибухи", "ракета", "вибух")
             .collect(Collectors.toSet());
-    public static final LocalDateTime BOUNDARY_DATE = LocalDateTime.of(2022, 6, 9, 0, 0, 0);
+    public static final LocalDateTime BOUNDARY_DATE = LocalDateTime.of(2022, 6, 28, 0, 0, 0);
     public static final String OR = " OR ";
     public static final String AND = " AND ";
     public static final String FROM = " from:";

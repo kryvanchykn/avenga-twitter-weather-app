@@ -18,10 +18,10 @@ public class RegionsIdListConstraintValidator implements ConstraintValidator<Reg
 
     @Override
     public boolean isValid(List<Long> regionsId, ConstraintValidatorContext context) {
-        if(regionsId == null){
-            return false;
+        if(regionsId != null){
+            Set<Long> regionsIdFromDB = regionService.getAllRegions().stream().map(Region::getId).collect(Collectors.toSet());
+            return regionsIdFromDB.containsAll(regionsId);
         }
-        Set<Long> regionsIdFromDB = regionService.getAllRegions().stream().map(Region::getId).collect(Collectors.toSet());
-        return regionsIdFromDB.containsAll(regionsId);
+        return true;
     }
 }

@@ -34,9 +34,8 @@ public class TwitterServiceImpl implements TwitterService {
 
     @Override
     public void saveRocketStrikesFromTwitter(LocalDate sinceDate, LocalDate untilDate, Region region) {
-        Set<RocketStrike> rocketStrikesFromTwitter;
         try {
-            rocketStrikesFromTwitter = findRocketStrikesInTwitter(region, sinceDate, untilDate);
+            Set<RocketStrike> rocketStrikesFromTwitter = findRocketStrikesInTwitter(region, sinceDate, untilDate);
             rocketStrikeRepository.saveAll(rocketStrikesFromTwitter);
         } catch (Exception e) {
             log.debug(e.getMessage());
@@ -80,7 +79,7 @@ public class TwitterServiceImpl implements TwitterService {
     private String formQueries(Region region, LocalDate sinceDate, LocalDate untilDate){
         String usersQuery = FROM + String.join(OR + FROM, USERS);
         String keywordsQuery = String.join(OR, KEYWORDS);
-        log.debug( usersQuery + SINCE + sinceDate + UNTIL + untilDate + formRegionQuery(region) + AND + keywordsQuery);
+        log.debug( "Twitter query: " + usersQuery + SINCE + sinceDate + UNTIL + untilDate + formRegionQuery(region) + AND + keywordsQuery);
         return usersQuery + SINCE + sinceDate + UNTIL + untilDate + formRegionQuery(region) + AND + keywordsQuery;
     }
 

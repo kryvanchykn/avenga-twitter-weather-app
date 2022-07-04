@@ -2,12 +2,12 @@ package com.example.avengatwitterweatherapp.serviceTest;
 
 import com.example.avengatwitterweatherapp.model.Region;
 import com.example.avengatwitterweatherapp.repository.RegionRepository;
-import com.example.avengatwitterweatherapp.service.RegionService;
+import com.example.avengatwitterweatherapp.service.impl.RegionServiceImpl;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.List;
@@ -20,10 +20,10 @@ import static org.mockito.Mockito.when;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class RegionServiceTest {
-    @Autowired
-    private RegionService regionService;
+    @InjectMocks
+    private RegionServiceImpl regionService;
 
-    @MockBean
+    @Mock
     private RegionRepository regionRepository;
 
 

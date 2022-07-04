@@ -2,19 +2,19 @@ package com.example.avengatwitterweatherapp.controller;
 
 import com.example.avengatwitterweatherapp.dto.RocketStrikeDto;
 import com.example.avengatwitterweatherapp.exceptions.BadDateRangeException;
+import com.example.avengatwitterweatherapp.exceptions.RestException;
 import com.example.avengatwitterweatherapp.model.Region;
 import com.example.avengatwitterweatherapp.model.RocketStrike;
 import com.example.avengatwitterweatherapp.service.RegionService;
 import com.example.avengatwitterweatherapp.service.RocketStrikeService;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
 import static com.example.avengatwitterweatherapp.constants.RocketStrikeConstants.*;
@@ -58,7 +58,6 @@ public class RocketStrikeController {
                                             @RequestParam String sortField,
                                             @RequestParam String sortDir,
                                             Model model) {
-
         List<Region> checkedRegions = regionService.getRegionsById(checkedRegionsId);
         List<RocketStrike> filteredRocketStrikes = rocketStrikeService.getFilteredRocketStrikes(sinceDate,
                     untilDate, checkedRegions, sortField, sortDir);
@@ -76,7 +75,12 @@ public class RocketStrikeController {
     @PostMapping("/rest/getFilteredRocketStrikes")
     @ResponseBody
     public List<RocketStrike> viewFilteredRocketStrikes(@RequestBody @Valid RocketStrikeDto rocketStrikeDto) {
-        return rocketStrikeService.getFilteredRocketStrikes(rocketStrikeDto);
+        try{
+            return rocketStrikeService.getFilteredRocketStrikes(rocketStrikeDto);
+        } catch (BadDateRangeException | DateTimeParseException ex){
+            log.debug(ex.getMessage());
+            throw new RestException(ex.getMessage());
+        }
     }
 
 

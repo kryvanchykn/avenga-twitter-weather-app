@@ -2,6 +2,7 @@ package com.example.avengatwitterweatherapp.service.impl;
 
 import com.example.avengatwitterweatherapp.dto.RocketStrikeDto;
 import com.example.avengatwitterweatherapp.exceptions.BadDateRangeException;
+import com.example.avengatwitterweatherapp.exceptions.NoSelectedRegionsException;
 import com.example.avengatwitterweatherapp.exceptions.RocketStrikeNotFoundException;
 import com.example.avengatwitterweatherapp.model.Region;
 import com.example.avengatwitterweatherapp.model.RocketStrike;
@@ -12,9 +13,7 @@ import com.example.avengatwitterweatherapp.service.TwitterService;
 import org.apache.commons.beanutils.BeanComparator;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -43,7 +42,7 @@ public class RocketStrikeServiceImpl implements RocketStrikeService {
     @Override
     public List<RocketStrike> getRecentRocketStrikes(String sortField, String sortDir) {
         LocalDateTime sinceDate = LocalDateTime.now().with(LocalTime.MIN);
-        LocalDateTime untilDate = LocalDateTime.now().plusDays(1).minusSeconds(1);
+        LocalDateTime untilDate = LocalDateTime.now().plusDays(1);
         List<RocketStrike> recentRocketStrikes = new ArrayList<>();
 
         while(recentRocketStrikes.size() == 0 && !sinceDate.equals(BOUNDARY_DATE)){
@@ -64,15 +63,15 @@ public class RocketStrikeServiceImpl implements RocketStrikeService {
         LocalDateTime untilDate = LocalDateTime.parse(untilDateStr, STRIKE_DATE_FORMATTER).isAfter(LocalDateTime.now()) ?
                 LocalDateTime.now() : LocalDateTime.parse(untilDateStr, STRIKE_DATE_FORMATTER);
 
-        try{
-            if(sinceDate.isAfter(untilDate)){
-                throw new BadDateRangeException("sinceDate should be before untilDate");
-            }
-        } catch(BadDateRangeException ex) {
-            log.error(ex.getMessage());
-            throw new ResponseStatusException(
-                    HttpStatus.NOT_ACCEPTABLE, ex.getMessage());
+
+        if(sinceDate.isAfter(untilDate)){
+            throw new BadDateRangeException("sinceDate should be before untilDate");
         }
+
+        if(regions == null){
+            throw new NoSelectedRegionsException("any region was selected");
+        }
+
 
         LocalDateTime firstRocketStrikeDate;
         LocalDateTime lastRocketStrikeDate;
@@ -83,7 +82,9 @@ public class RocketStrikeServiceImpl implements RocketStrikeService {
             lastRocketStrikeDate = getLastRocketStrikeDateRecord(region);
 
             if (rocketStrikesFromDB.size() == 0)
+            {
                 twitterService.saveRocketStrikesFromTwitter(sinceDate.toLocalDate(), untilDate.toLocalDate(), region);
+            }
             else {
                 if (firstRocketStrikeDate.isAfter(sinceDate)) {
                     twitterService.saveRocketStrikesFromTwitter(sinceDate.toLocalDate(), firstRocketStrikeDate.toLocalDate(), region);
@@ -94,9 +95,8 @@ public class RocketStrikeServiceImpl implements RocketStrikeService {
             }
         }
 
-
-        List<RocketStrike> filteredRocketStrikes = getRocketStrikesFromDB(sinceDate, untilDate.plusDays(1),
-                regions, sortField, sortDir);
+        List<RocketStrike> filteredRocketStrikes = getRocketStrikesFromDB(sinceDate, untilDate, regions, sortField, sortDir);
+        log.debug("Filtered rocket strikes:");
         for(RocketStrike rs: filteredRocketStrikes){
             log.debug(rs);
         }
@@ -111,8 +111,17 @@ public class RocketStrikeServiceImpl implements RocketStrikeService {
                 checkedRegions, rocketStrikeDto.getSortField(), rocketStrikeDto.getSortDir());
     }
 
-
     @Override
+    public RocketStrike getRocketStrikeById(long id) {
+        try{
+            return rocketStrikeRepository.findById(id).get();
+        } catch(NoSuchElementException ex){
+            log.error(ex.getMessage());
+            throw new RocketStrikeNotFoundException("Weather forecast for rocket strike with id=" + id + " is not found");
+        }
+    }
+
+
     public List<RocketStrike> getRocketStrikesFromDB(LocalDateTime sinceDate, LocalDateTime untilDate,
                                                            List<Region> regions, String sortField, String sortDirection) {
         Set<RocketStrike> rocketStrikeSet = new HashSet<>();
@@ -131,39 +140,33 @@ public class RocketStrikeServiceImpl implements RocketStrikeService {
         return rocketStrikeList;
     }
 
-    @Override
-    public LocalDateTime getFirstRocketStrikeDateRecord(Region region) {
+    private LocalDateTime getFirstRocketStrikeDateRecord(Region region) {
         RocketStrike rocketStrike = new RocketStrike();
         rocketStrike.setStrikeDate(LocalDateTime.now());
-        return rocketStrikeRepository.findAll().stream()
+        RocketStrike rocketStrike1 =  rocketStrikeRepository.findAll().stream()
                 .filter(rs -> rs.getRegion().equals(region))
                 .min(Comparator.comparing(RocketStrike::getStrikeDate))
-                .orElse(rocketStrike).getStrikeDate();
+                .orElse(rocketStrike);
+        return rocketStrike1.getStrikeDate();
     }
 
-    @Override
-    public LocalDateTime getLastRocketStrikeDateRecord(Region region) {
+    private LocalDateTime getLastRocketStrikeDateRecord(Region region) {
         RocketStrike rocketStrike = new RocketStrike();
         rocketStrike.setStrikeDate(BOUNDARY_DATE);
-        return rocketStrikeRepository.findAll().stream()
+        RocketStrike rocketStrike1 =  rocketStrikeRepository.findAll().stream()
                 .filter(rs -> rs.getRegion().equals(region))
                 .max(Comparator.comparing(RocketStrike::getStrikeDate))
-                .orElse(rocketStrike).getStrikeDate();
-    }
-
-    @Override
-    public RocketStrike getRocketStrikeById(long id) {
-        try{
-            return rocketStrikeRepository.findById(id).get();
-        } catch(NoSuchElementException ex){
-            log.error(ex.getMessage());
-            throw new RocketStrikeNotFoundException("Weather forecast for rocket strike with id=" + id + " is not found");
-        }
+                .orElse(rocketStrike);
+        return rocketStrike1.getStrikeDate();
     }
 
     private List<RocketStrike> filterByTime(LocalDateTime sinceDate, LocalDateTime untilDate,
                                             List<RocketStrike> rocketStrikes){
-        return rocketStrikes.stream().filter(rocketStrike -> rocketStrike.getStrikeDate().isAfter(sinceDate) &&
-                rocketStrike.getStrikeDate().isBefore(untilDate)).collect(Collectors.toList());
+        return rocketStrikes.stream().filter(
+                rs -> rs.getStrikeDate().isAfter(sinceDate) &&
+                rs.getStrikeDate().isBefore(untilDate) ||
+                untilDate.equals(rs.getStrikeDate()) ||
+                sinceDate.equals(rs.getStrikeDate()))
+                .collect(Collectors.toList());
     }
 }

@@ -1,5 +1,6 @@
 package com.example.avengatwitterweatherapp.controller;
 
+import com.example.avengatwitterweatherapp.exceptions.RestException;
 import com.example.avengatwitterweatherapp.exceptions.RocketStrikeNotFoundException;
 import com.example.avengatwitterweatherapp.exceptions.WeatherForecastNotFoundException;
 import com.example.avengatwitterweatherapp.model.RocketStrike;
@@ -8,13 +9,11 @@ import com.example.avengatwitterweatherapp.service.RocketStrikeService;
 import com.example.avengatwitterweatherapp.service.WeatherService;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.server.ResponseStatusException;
 
 @Controller
 public class WeatherController {
@@ -46,8 +45,7 @@ public class WeatherController {
             return weatherService.getWeather(rocketStrike);
         } catch(RocketStrikeNotFoundException | WeatherForecastNotFoundException ex) {
             log.error(ex.getMessage());
-            throw new ResponseStatusException(
-                    HttpStatus.FORBIDDEN, ex.getMessage());
+            throw new RestException(ex.getMessage());
         }
     }
 }

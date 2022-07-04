@@ -14,9 +14,7 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
-import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.io.IOException;
 
@@ -42,7 +40,6 @@ public class WeatherServiceImpl implements WeatherService {
 
             Response response = client.newCall(request).execute();
             assert response.body() != null;
-            log.debug("response body is null");
             return mapWeather(new JSONObject(response.body().string()), strikeHour, rocketStrike.getRegion());
         }catch (IOException | JSONException e){
             log.error(e.getMessage());
