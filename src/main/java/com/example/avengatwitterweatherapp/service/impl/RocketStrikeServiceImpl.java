@@ -21,7 +21,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.example.avengatwitterweatherapp.constants.RocketStrikeConstants.*;
+import static com.example.avengatwitterweatherapp.constants.RocketStrikeConstants.ASC_ORDER;
+import static com.example.avengatwitterweatherapp.constants.RocketStrikeConstants.SORT_BY_REGION;
 import static com.example.avengatwitterweatherapp.constants.TwitterConstants.BOUNDARY_DATE;
 
 @Service
@@ -41,13 +42,12 @@ public class RocketStrikeServiceImpl implements RocketStrikeService {
 
     @Override
     public List<RocketStrike> getRecentRocketStrikes(String sortField, String sortDir) {
-        LocalDateTime sinceDate = LocalDateTime.now().with(LocalTime.MIN);
-        LocalDateTime untilDate = LocalDateTime.now().plusDays(1);
+        LocalDateTime sinceDate = LocalDateTime.now().with(LocalTime.MIN).truncatedTo(ChronoUnit.MINUTES);
+        LocalDateTime untilDate = sinceDate.plusDays(1);
         List<RocketStrike> recentRocketStrikes = new ArrayList<>();
 
         while(recentRocketStrikes.size() == 0 && !sinceDate.equals(BOUNDARY_DATE)){
-            recentRocketStrikes = getFilteredRocketStrikes(sinceDate.truncatedTo(ChronoUnit.MINUTES).toString(),
-                    untilDate.truncatedTo(ChronoUnit.MINUTES).toString(),
+            recentRocketStrikes = getFilteredRocketStrikes(sinceDate, untilDate,
                 regionService.getAllRegions(), SORT_BY_REGION, ASC_ORDER);
 
             sinceDate = sinceDate.minusDays(1);
@@ -57,12 +57,12 @@ public class RocketStrikeServiceImpl implements RocketStrikeService {
     }
 
     @Override
-    public List<RocketStrike> getFilteredRocketStrikes(String sinceDateStr, String untilDateStr, List<Region> regions,
+    public List<RocketStrike> getFilteredRocketStrikes(LocalDateTime sinceDate, LocalDateTime untilDate, List<Region> regions,
                                                        String sortField, String sortDir) {
-        LocalDateTime sinceDate = LocalDateTime.parse(sinceDateStr, STRIKE_DATE_FORMATTER);
-        LocalDateTime untilDate = LocalDateTime.parse(untilDateStr, STRIKE_DATE_FORMATTER).isAfter(LocalDateTime.now()) ?
-                LocalDateTime.now() : LocalDateTime.parse(untilDateStr, STRIKE_DATE_FORMATTER);
 
+        if(untilDate.isAfter(LocalDateTime.now())){
+            untilDate = LocalDateTime.now().plusDays(1).with(LocalTime.MIN);
+        }
 
         if(sinceDate.isAfter(untilDate)){
             throw new BadDateRangeException("sinceDate should be before untilDate");
@@ -107,7 +107,7 @@ public class RocketStrikeServiceImpl implements RocketStrikeService {
     @Override
     public List<RocketStrike> getFilteredRocketStrikes(RocketStrikeDto rocketStrikeDto) {
         List<Region> checkedRegions = regionService.getRegionsById(rocketStrikeDto.getCheckedRegionsId());
-        return getFilteredRocketStrikes(rocketStrikeDto.getSinceDate().toString(), rocketStrikeDto.getUntilDate().toString(),
+        return getFilteredRocketStrikes(rocketStrikeDto.getSinceDate(), rocketStrikeDto.getUntilDate(),
                 checkedRegions, rocketStrikeDto.getSortField(), rocketStrikeDto.getSortDir());
     }
 

@@ -9,10 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Random;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.Mockito.when;
@@ -61,11 +64,24 @@ public class WeatherControllerTest {
 
         when(weatherService.getWeather(rocketStrike1)).thenReturn(weather);
 
-        this.mockMvc.perform(get("/rest/forecast").param("id", "1"))
+        this.mockMvc.perform(get("/rest/forecast").param("id", String.valueOf(rocketStrike1.getId())))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().contentType("application/json"))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(content().string(containsString(String.valueOf(rocketStrikeDate))))
                 .andExpect(content().string(containsString(region1.getRegionalCentre())));
+    }
+
+    @Test
+    public void showForecastRESTThrowsRestExceptionTest() throws Exception {
+        long id = new Random().nextLong();
+        String errorMessage = "Weather forecast for rocket strike with id=" + id + " is not found";
+
+        this.mockMvc.perform(get("/rest/forecast").param("id", String.valueOf(id)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(new MediaType(MediaType.TEXT_PLAIN, StandardCharsets.UTF_8)))
+                .andExpect(content().string(containsString(errorMessage)));
+        ;
     }
 }

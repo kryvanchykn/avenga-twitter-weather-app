@@ -1,6 +1,7 @@
 package com.example.avengatwitterweatherapp.constants;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -8,9 +9,9 @@ import java.util.stream.Stream;
 public class TwitterConstants {
     public static final Set<String> USERS = Stream.of("5channel", "nakipeloua", "ICTV_Fakty", "EuropeanPravda", "tsnua")
             .collect(Collectors.toSet());
-    public static final Set<String> KEYWORDS = Stream.of("ракетний", "удар", "вибухи", "ракета", "вибух")
+    public static final Set<String> KEYWORDS = Stream.of("ракетний", "удар", "вибухи", "ракета", "вибух", "обстрілюють", "обстріляли")
             .collect(Collectors.toSet());
-    public static final LocalDateTime BOUNDARY_DATE = LocalDateTime.of(2022, 6, 28, 0, 0, 0);
+    public static final LocalDateTime BOUNDARY_DATE = LocalDateTime.now().minusDays(8).truncatedTo(ChronoUnit.HOURS);
     public static final String OR = " OR ";
     public static final String AND = " AND ";
     public static final String FROM = " from:";

@@ -42,8 +42,7 @@ public class TwitterServiceImpl implements TwitterService {
         }
     }
 
-    private Set<RocketStrike> findRocketStrikesInTwitter(Region region,
-                                                         LocalDate sinceDate, LocalDate untilDate) {
+    private Set<RocketStrike> findRocketStrikesInTwitter(Region region, LocalDate sinceDate, LocalDate untilDate) {
         Set<RocketStrike> rocketStrikes = new HashSet<>();
         try {
             Twitter authObject = TwitterAuth.authenticate();

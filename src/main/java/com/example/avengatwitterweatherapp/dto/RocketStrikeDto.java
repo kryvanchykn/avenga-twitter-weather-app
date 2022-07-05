@@ -37,5 +37,4 @@ public class RocketStrikeDto {
 
     @EnumConstraint(enumClass = SortDir.class)
     String sortDir = ASC_ORDER;
-
 }

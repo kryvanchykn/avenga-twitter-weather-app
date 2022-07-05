@@ -9,11 +9,13 @@ import com.example.avengatwitterweatherapp.service.RegionService;
 import com.example.avengatwitterweatherapp.service.RocketStrikeService;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 
@@ -41,7 +43,7 @@ public class RocketStrikeController {
         model.addAttribute("listSortFields", SORT_FIELDS);
         model.addAttribute("listSortDir", SORT_DIR);
 
-        return "index.html";
+        return "index";
     }
 
     @GetMapping("/rest")
@@ -52,12 +54,15 @@ public class RocketStrikeController {
 
 
     @PostMapping("/mvc/getFilteredRocketStrikes")
-    public String viewFilteredRocketStrikes(@RequestParam String sinceDate,
-                                            @RequestParam String untilDate,
+    public String viewFilteredRocketStrikes(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+                                                LocalDateTime sinceDate,
+                                            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+                                                LocalDateTime untilDate,
                                             @RequestParam List<Long> checkedRegionsId,
                                             @RequestParam String sortField,
                                             @RequestParam String sortDir,
                                             Model model) {
+
         List<Region> checkedRegions = regionService.getRegionsById(checkedRegionsId);
         List<RocketStrike> filteredRocketStrikes = rocketStrikeService.getFilteredRocketStrikes(sinceDate,
                     untilDate, checkedRegions, sortField, sortDir);
