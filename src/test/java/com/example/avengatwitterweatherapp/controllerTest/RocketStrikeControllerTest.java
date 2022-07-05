@@ -113,8 +113,15 @@ public class RocketStrikeControllerTest {
         Region region1 = new Region(1, "Львівська область", "Львівщина", "Lviv", "Lviv");
         RocketStrike rocketStrike1 = new RocketStrike(1, region1, LocalDateTime.of(2022, 6, 25, 0, 0, 0));
 
-        ObjectMapper mapper =  new ObjectMapper();
-        String requestJson = mapper.writeValueAsString(rocketStrikeDto);
+//        ObjectMapper mapper =  new ObjectMapper();
+//        String requestJson = mapper.writeValueAsString(rocketStrikeDto);
+        String requestJson = "{\n" +
+                "    \"sinceDate\":\"" + sinceDate + "\",\n" +
+                "    \"untilDate\":\"" + untilDate + "\",\n" +
+                "    \"sortField\":\"" + SORT_BY_REGION + "\",\n" +
+                "    \"sortDir\":\"" + ASC_ORDER + "\",\n" +
+                "    \"checkedRegionsId\": [" + region1.getId() + "]\n" +
+                "}";
 
         when(rocketStrikeService.getFilteredRocketStrikes(rocketStrikeDto)).thenReturn(List.of(rocketStrike1));
 
