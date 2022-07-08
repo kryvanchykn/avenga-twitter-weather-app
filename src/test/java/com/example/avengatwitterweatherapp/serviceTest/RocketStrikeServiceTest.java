@@ -10,15 +10,11 @@ import com.example.avengatwitterweatherapp.repository.RocketStrikeRepository;
 import com.example.avengatwitterweatherapp.service.impl.RegionServiceImpl;
 import com.example.avengatwitterweatherapp.service.impl.RocketStrikeServiceImpl;
 import com.example.avengatwitterweatherapp.service.impl.TwitterServiceImpl;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -27,14 +23,16 @@ import java.util.Optional;
 
 import static com.example.avengatwitterweatherapp.constants.RocketStrikeConstants.ASC_ORDER;
 import static com.example.avengatwitterweatherapp.constants.RocketStrikeConstants.SORT_BY_REGION;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
-@RunWith(SpringRunner.class)
 @SpringBootTest
 public class RocketStrikeServiceTest {
-    private static final Logger log = LogManager.getLogger(RocketStrikeServiceTest.class);
+    private static final Region REGION = new Region(1, "Львівська область", "Львівщина", "Lviv", "Lviv");
+    private static final RocketStrike RECENT_ROCKET_STRIKE = new RocketStrike(1, REGION, LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
+    private static final LocalDateTime UNTIL_DATE = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
+    private static final LocalDateTime SINCE_DATE = UNTIL_DATE.minusDays(1);
 
     @InjectMocks
     private RocketStrikeServiceImpl rocketStrikeService;
@@ -47,59 +45,47 @@ public class RocketStrikeServiceTest {
 
     @Test
     public void getRecentRocketStrikesTest() {
-        Region region1 = new Region(1, "Львівщина", "Львівська область", "Lviv", "Lviv");
-        RocketStrike rocketStrike1 = new RocketStrike(1, region1, LocalDateTime.now());
-
-        when(regionService.getAllRegions()).thenReturn(List.of(region1));
+        when(regionService.getAllRegions()).thenReturn(List.of(REGION));
         when(rocketStrikeRepository.findRocketStrikeByStrikeDateBetweenAndRegion(
                 any(LocalDateTime.class), any(LocalDateTime.class), any(Region.class)))
-                .thenReturn(List.of(rocketStrike1));
+                .thenReturn(List.of(RECENT_ROCKET_STRIKE));
 
-        List<RocketStrike> list =  rocketStrikeService.getRecentRocketStrikes(SORT_BY_REGION, ASC_ORDER);
+        List<RocketStrike> list = rocketStrikeService.getRecentRocketStrikes(SORT_BY_REGION, ASC_ORDER);
 
         verify(rocketStrikeRepository, times(2)).findRocketStrikeByStrikeDateBetweenAndRegion(
                 any(LocalDateTime.class), any(LocalDateTime.class), any(Region.class));
         verify(rocketStrikeRepository, times(2)).findAll();
-        assertEquals(List.of(rocketStrike1), list);
+        assertEquals(List.of(RECENT_ROCKET_STRIKE), list);
     }
 
     @Test
     public void getFilteredRocketStrikesTest() {
-        Region region1 = new Region(1, "Львівщина", "Львівська область", "Lviv", "Lviv");
-        RocketStrike rocketStrike1 = new RocketStrike(1, region1, LocalDateTime.of(2022, 6, 25, 0, 0, 0));
+        RocketStrike rocketStrike = new RocketStrike(1, REGION, LocalDateTime.of(2022, 6, 25, 0, 0, 0));
 
         LocalDateTime sinceDate = LocalDateTime.of(2022, 6, 20, 0, 0, 0);
         LocalDateTime untilDate = LocalDateTime.of(2022, 6, 28, 0, 0, 0);
 
-        when(rocketStrikeRepository.findRocketStrikeByStrikeDateBetweenAndRegion(sinceDate, untilDate, region1))
-                .thenReturn(List.of(rocketStrike1));
+        when(rocketStrikeRepository.findRocketStrikeByStrikeDateBetweenAndRegion(sinceDate, untilDate, REGION))
+                .thenReturn(List.of(rocketStrike));
 
-        List<RocketStrike> list =  rocketStrikeService.getFilteredRocketStrikes(sinceDate, untilDate,
-                List.of(region1), SORT_BY_REGION, ASC_ORDER);
+        List<RocketStrike> list = rocketStrikeService.getFilteredRocketStrikes(sinceDate, untilDate,
+                List.of(REGION), SORT_BY_REGION, ASC_ORDER);
 
-        verify(rocketStrikeRepository, times(2)).findRocketStrikeByStrikeDateBetweenAndRegion(sinceDate, untilDate, region1);
+        verify(rocketStrikeRepository, times(2)).findRocketStrikeByStrikeDateBetweenAndRegion(sinceDate, untilDate, REGION);
         verify(rocketStrikeRepository, times(2)).findAll();
-        assertEquals(List.of(rocketStrike1), list);
+        assertEquals(List.of(rocketStrike), list);
     }
 
     @Test
     public void getFilteredRocketStrikesThrowBadDateRangeExceptionTest() {
-        Region region1 = new Region(1, "Львівщина", "Львівська область", "Lviv", "Lviv");
-
-        LocalDateTime sinceDate = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
-        LocalDateTime untilDate = sinceDate.minusDays(1);
-
         assertThrows(BadDateRangeException.class, () -> rocketStrikeService.getFilteredRocketStrikes(
-                sinceDate, untilDate, List.of(region1), SORT_BY_REGION, ASC_ORDER));
+                UNTIL_DATE, SINCE_DATE, List.of(REGION), SORT_BY_REGION, ASC_ORDER));
     }
 
     @Test
     public void getFilteredRocketStrikesThrowNoSelectedRegionsExceptionTest() {
-        LocalDateTime untilDate = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
-        LocalDateTime sinceDate = untilDate.minusDays(1);
-
         assertThrows(NoSelectedRegionsException.class, () -> rocketStrikeService.getFilteredRocketStrikes(
-                sinceDate, untilDate, null, SORT_BY_REGION, ASC_ORDER));
+                SINCE_DATE, UNTIL_DATE, null, SORT_BY_REGION, ASC_ORDER));
     }
 
     @Test
@@ -109,41 +95,30 @@ public class RocketStrikeServiceTest {
 
     @Test
     public void getRocketStrikeByIdTest() {
-        Region region1 = new Region(1, "Львівщина", "Львівська область", "Lviv", "Lviv");
-        RocketStrike rocketStrike1 = new RocketStrike(1, region1, LocalDateTime.now());
-
-        when(rocketStrikeRepository.findById(region1.getId())).thenReturn(Optional.of(rocketStrike1));
-        assertEquals(rocketStrikeService.getRocketStrikeById(region1.getId()), rocketStrike1);
+        when(rocketStrikeRepository.findById(REGION.getId())).thenReturn(Optional.of(RECENT_ROCKET_STRIKE));
+        assertEquals(rocketStrikeService.getRocketStrikeById(REGION.getId()), RECENT_ROCKET_STRIKE);
     }
 
     @Test
     public void getFilteredRocketStrikeDTOTest() {
         RocketStrikeDto rocketStrikeDto = Mockito.spy(new RocketStrikeDto());
-
-        LocalDateTime untilDate = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
-        LocalDateTime sinceDate = untilDate.minusDays(1);
         List<Long> checkedRegionsId = List.of(1L);
 
-        rocketStrikeDto.setSinceDate(sinceDate);
-        rocketStrikeDto.setUntilDate(untilDate);
+        rocketStrikeDto.setSinceDate(SINCE_DATE);
+        rocketStrikeDto.setUntilDate(UNTIL_DATE);
         rocketStrikeDto.setCheckedRegionsId(checkedRegionsId);
         rocketStrikeDto.setSortField(SORT_BY_REGION);
         rocketStrikeDto.setSortDir(ASC_ORDER);
 
-        Region region1 = new Region(1, "Львівщина", "Львівська область", "Lviv", "Lviv");
-        RocketStrike rocketStrike1 = new RocketStrike(1, region1, sinceDate);
-
-        when(regionService.getRegionsById(anyList())).thenReturn(List.of(region1));
+        when(regionService.getRegionsById(anyList())).thenReturn(List.of(REGION));
         when(rocketStrikeRepository.findRocketStrikeByStrikeDateBetweenAndRegion(
                 any(LocalDateTime.class), any(LocalDateTime.class), any(Region.class)))
-                .thenReturn(List.of(rocketStrike1));
+                .thenReturn(List.of(RECENT_ROCKET_STRIKE));
 
-        List<RocketStrike> list =  rocketStrikeService.getFilteredRocketStrikes(rocketStrikeDto);
+        List<RocketStrike> list = rocketStrikeService.getFilteredRocketStrikes(rocketStrikeDto);
 
-        assertEquals(List.of(rocketStrike1), list);
+        assertEquals(List.of(RECENT_ROCKET_STRIKE), list);
     }
-
-
 
 
 }

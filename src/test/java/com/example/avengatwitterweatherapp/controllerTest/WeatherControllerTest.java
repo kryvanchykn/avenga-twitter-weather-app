@@ -1,13 +1,15 @@
 package com.example.avengatwitterweatherapp.controllerTest;
 
+import com.example.avengatwitterweatherapp.controller.WeatherController;
+import com.example.avengatwitterweatherapp.exceptions.RocketStrikeNotFoundException;
 import com.example.avengatwitterweatherapp.model.Region;
 import com.example.avengatwitterweatherapp.model.RocketStrike;
 import com.example.avengatwitterweatherapp.model.Weather;
+import com.example.avengatwitterweatherapp.service.RocketStrikeService;
 import com.example.avengatwitterweatherapp.service.WeatherService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -25,63 +27,65 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-@SpringBootTest
-@AutoConfigureMockMvc
+@WebMvcTest(WeatherController.class)
 public class WeatherControllerTest {
+    private static final Region REGION = new Region(1, "Львівська область", "Львівщина", "Lviv", "Lviv");
+    private static final LocalDateTime ROCKET_STRIKE_DATE = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
+    private static final RocketStrike ROCKET_STRIKE = new RocketStrike(1, REGION, ROCKET_STRIKE_DATE);
     @Autowired
     private MockMvc mockMvc;
 
     @MockBean
     private WeatherService weatherService;
 
+    @MockBean
+    private RocketStrikeService rocketStrikeService;
+
     @Test
     public void showForecastMVCTest() throws Exception {
-        Region region1 = new Region(1, "Львівська область", "Львівщина", "Lviv", "Lviv");
-        LocalDateTime rocketStrikeDate = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
-        RocketStrike rocketStrike1 = new RocketStrike(1, region1, rocketStrikeDate);
         Weather weather = new Weather();
-        weather.setRegion(region1);
-        weather.setTime(rocketStrikeDate.toString());
+        weather.setRegion(REGION);
+        weather.setTime(ROCKET_STRIKE_DATE.toString());
 
-        when(weatherService.getWeather(rocketStrike1)).thenReturn(weather);
+        when(rocketStrikeService.getRocketStrikeById(ROCKET_STRIKE.getId())).thenReturn(ROCKET_STRIKE);
+        when(weatherService.getWeather(ROCKET_STRIKE)).thenReturn(weather);
 
-        this.mockMvc.perform(get("/mvc/forecast").param("id", "1"))
+        this.mockMvc.perform(get("/mvc/forecast").param("id", String.valueOf(REGION.getId())))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().contentType("text/html;charset=UTF-8"))
-                .andExpect(content().string(containsString(String.valueOf(rocketStrikeDate))))
-                .andExpect(content().string(containsString(region1.getRegionalCentre())));
+                .andExpect(content().contentType(new MediaType(MediaType.TEXT_HTML, StandardCharsets.UTF_8)))
+                .andExpect(content().string(containsString(String.valueOf(ROCKET_STRIKE_DATE))))
+                .andExpect(content().string(containsString(REGION.getRegionalCentre())));
     }
 
     @Test
     public void showForecastRESTTest() throws Exception {
-        Region region1 = new Region(1, "Львівська область", "Львівщина", "Lviv", "Lviv");
-        LocalDateTime rocketStrikeDate = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
-        RocketStrike rocketStrike1 = new RocketStrike(1, region1, rocketStrikeDate);
         Weather weather = new Weather();
-        weather.setRegion(region1);
-        weather.setTime(rocketStrikeDate.toString());
+        weather.setRegion(REGION);
+        weather.setTime(ROCKET_STRIKE_DATE.toString());
 
-        when(weatherService.getWeather(rocketStrike1)).thenReturn(weather);
+        when(rocketStrikeService.getRocketStrikeById(ROCKET_STRIKE.getId())).thenReturn(ROCKET_STRIKE);
+        when(weatherService.getWeather(ROCKET_STRIKE)).thenReturn(weather);
 
-        this.mockMvc.perform(get("/rest/forecast").param("id", String.valueOf(rocketStrike1.getId())))
+        this.mockMvc.perform(get("/rest/forecast").param("id", String.valueOf(ROCKET_STRIKE.getId())))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(content().string(containsString(String.valueOf(rocketStrikeDate))))
-                .andExpect(content().string(containsString(region1.getRegionalCentre())));
+                .andExpect(content().string(containsString(String.valueOf(ROCKET_STRIKE_DATE))))
+                .andExpect(content().string(containsString(REGION.getRegionalCentre())));
     }
 
     @Test
     public void showForecastRESTThrowsRestExceptionTest() throws Exception {
         long id = new Random().nextLong();
         String errorMessage = "Weather forecast for rocket strike with id=" + id + " is not found";
+        when(rocketStrikeService.getRocketStrikeById(id))
+                .thenThrow(new RocketStrikeNotFoundException("Weather forecast for rocket strike with id=" + id + " is not found"));
 
         this.mockMvc.perform(get("/rest/forecast").param("id", String.valueOf(id)))
                 .andDo(print())
-                .andExpect(status().isOk())
+                .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(new MediaType(MediaType.TEXT_PLAIN, StandardCharsets.UTF_8)))
                 .andExpect(content().string(containsString(errorMessage)));
-        ;
     }
 }

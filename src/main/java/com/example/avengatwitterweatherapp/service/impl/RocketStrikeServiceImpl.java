@@ -11,8 +11,6 @@ import com.example.avengatwitterweatherapp.service.RegionService;
 import com.example.avengatwitterweatherapp.service.RocketStrikeService;
 import com.example.avengatwitterweatherapp.service.TwitterService;
 import org.apache.commons.beanutils.BeanComparator;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -27,8 +25,6 @@ import static com.example.avengatwitterweatherapp.constants.TwitterConstants.BOU
 
 @Service
 public class RocketStrikeServiceImpl implements RocketStrikeService {
-    private static final Logger log = LogManager.getLogger(RocketStrikeServiceImpl.class);
-
     private final RegionService regionService;
     private final TwitterService twitterService;
     private final RocketStrikeRepository rocketStrikeRepository;
@@ -46,9 +42,9 @@ public class RocketStrikeServiceImpl implements RocketStrikeService {
         LocalDateTime untilDate = sinceDate.plusDays(1);
         List<RocketStrike> recentRocketStrikes = new ArrayList<>();
 
-        while(recentRocketStrikes.size() == 0 && !sinceDate.equals(BOUNDARY_DATE)){
+        while (recentRocketStrikes.size() == 0 && !sinceDate.equals(BOUNDARY_DATE)) {
             recentRocketStrikes = getFilteredRocketStrikes(sinceDate, untilDate,
-                regionService.getAllRegions(), SORT_BY_REGION, ASC_ORDER);
+                    regionService.getAllRegions(), SORT_BY_REGION, ASC_ORDER);
 
             sinceDate = sinceDate.minusDays(1);
             untilDate = untilDate.minusDays(1);
@@ -60,15 +56,15 @@ public class RocketStrikeServiceImpl implements RocketStrikeService {
     public List<RocketStrike> getFilteredRocketStrikes(LocalDateTime sinceDate, LocalDateTime untilDate, List<Region> regions,
                                                        String sortField, String sortDir) {
 
-        if(untilDate.isAfter(LocalDateTime.now())){
+        if (untilDate.isAfter(LocalDateTime.now())) {
             untilDate = LocalDateTime.now().plusDays(1).with(LocalTime.MIN);
         }
 
-        if(sinceDate.isAfter(untilDate)){
+        if (sinceDate.isAfter(untilDate)) {
             throw new BadDateRangeException("sinceDate should be before untilDate");
         }
 
-        if(regions == null){
+        if (regions == null || regions.size() == 0) {
             throw new NoSelectedRegionsException("any region was selected");
         }
 
@@ -77,15 +73,13 @@ public class RocketStrikeServiceImpl implements RocketStrikeService {
         LocalDateTime lastRocketStrikeDate;
 
         List<RocketStrike> rocketStrikesFromDB = getRocketStrikesFromDB(sinceDate, untilDate, regions, sortField, sortDir);
-        for (Region region: regions) {
+        for (Region region : regions) {
             firstRocketStrikeDate = getFirstRocketStrikeDateRecord(region);
             lastRocketStrikeDate = getLastRocketStrikeDateRecord(region);
 
-            if (rocketStrikesFromDB.size() == 0)
-            {
+            if (rocketStrikesFromDB.size() == 0) {
                 twitterService.saveRocketStrikesFromTwitter(sinceDate.toLocalDate(), untilDate.toLocalDate(), region);
-            }
-            else {
+            } else {
                 if (firstRocketStrikeDate.isAfter(sinceDate)) {
                     twitterService.saveRocketStrikesFromTwitter(sinceDate.toLocalDate(), firstRocketStrikeDate.toLocalDate(), region);
                 }
@@ -96,11 +90,6 @@ public class RocketStrikeServiceImpl implements RocketStrikeService {
         }
 
         List<RocketStrike> filteredRocketStrikes = getRocketStrikesFromDB(sinceDate, untilDate, regions, sortField, sortDir);
-        log.debug("Filtered rocket strikes:");
-        for(RocketStrike rs: filteredRocketStrikes){
-            log.debug(rs);
-        }
-
         return filterByTime(sinceDate, untilDate, filteredRocketStrikes);
     }
 
@@ -113,19 +102,18 @@ public class RocketStrikeServiceImpl implements RocketStrikeService {
 
     @Override
     public RocketStrike getRocketStrikeById(long id) {
-        try{
-            return rocketStrikeRepository.findById(id).get();
-        } catch(NoSuchElementException ex){
-            log.error(ex.getMessage());
+        Optional<RocketStrike> rocketStrikeByIdStream = rocketStrikeRepository.findById(id);
+        if (rocketStrikeByIdStream.isEmpty()) {
             throw new RocketStrikeNotFoundException("Weather forecast for rocket strike with id=" + id + " is not found");
         }
+        return rocketStrikeByIdStream.get();
     }
 
 
     public List<RocketStrike> getRocketStrikesFromDB(LocalDateTime sinceDate, LocalDateTime untilDate,
-                                                           List<Region> regions, String sortField, String sortDirection) {
+                                                     List<Region> regions, String sortField, String sortDirection) {
         Set<RocketStrike> rocketStrikeSet = new HashSet<>();
-        for (Region region: regions) {
+        for (Region region : regions) {
             rocketStrikeSet.addAll(rocketStrikeRepository.findRocketStrikeByStrikeDateBetweenAndRegion(sinceDate,
                     untilDate, region));
         }
@@ -133,7 +121,7 @@ public class RocketStrikeServiceImpl implements RocketStrikeService {
         Comparator<RocketStrike> fieldCompare = new BeanComparator<>(sortField);
         List<RocketStrike> rocketStrikeList = new ArrayList<>(rocketStrikeSet.stream().toList());
         rocketStrikeList.sort(fieldCompare);
-        if(!sortDirection.equals(ASC_ORDER)){
+        if (!sortDirection.equals(ASC_ORDER)) {
             Collections.reverse(rocketStrikeList);
         }
 
@@ -143,7 +131,7 @@ public class RocketStrikeServiceImpl implements RocketStrikeService {
     private LocalDateTime getFirstRocketStrikeDateRecord(Region region) {
         RocketStrike rocketStrike = new RocketStrike();
         rocketStrike.setStrikeDate(LocalDateTime.now());
-        RocketStrike rocketStrike1 =  rocketStrikeRepository.findAll().stream()
+        RocketStrike rocketStrike1 = rocketStrikeRepository.findAll().stream()
                 .filter(rs -> rs.getRegion().equals(region))
                 .min(Comparator.comparing(RocketStrike::getStrikeDate))
                 .orElse(rocketStrike);
@@ -153,7 +141,7 @@ public class RocketStrikeServiceImpl implements RocketStrikeService {
     private LocalDateTime getLastRocketStrikeDateRecord(Region region) {
         RocketStrike rocketStrike = new RocketStrike();
         rocketStrike.setStrikeDate(BOUNDARY_DATE);
-        RocketStrike rocketStrike1 =  rocketStrikeRepository.findAll().stream()
+        RocketStrike rocketStrike1 = rocketStrikeRepository.findAll().stream()
                 .filter(rs -> rs.getRegion().equals(region))
                 .max(Comparator.comparing(RocketStrike::getStrikeDate))
                 .orElse(rocketStrike);
@@ -161,12 +149,12 @@ public class RocketStrikeServiceImpl implements RocketStrikeService {
     }
 
     private List<RocketStrike> filterByTime(LocalDateTime sinceDate, LocalDateTime untilDate,
-                                            List<RocketStrike> rocketStrikes){
+                                            List<RocketStrike> rocketStrikes) {
         return rocketStrikes.stream().filter(
-                rs -> rs.getStrikeDate().isAfter(sinceDate) &&
-                rs.getStrikeDate().isBefore(untilDate) ||
-                untilDate.equals(rs.getStrikeDate()) ||
-                sinceDate.equals(rs.getStrikeDate()))
+                        rs -> rs.getStrikeDate().isAfter(sinceDate) &&
+                                rs.getStrikeDate().isBefore(untilDate) ||
+                                untilDate.equals(rs.getStrikeDate()) ||
+                                sinceDate.equals(rs.getStrikeDate()))
                 .collect(Collectors.toList());
     }
 }

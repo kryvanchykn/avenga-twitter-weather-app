@@ -3,11 +3,12 @@ package com.example.avengatwitterweatherapp.model;
 import lombok.Getter;
 
 @Getter
-public enum SortField{
+public enum SortField {
     REGION("region"),
     STRIKE_DATE("strikeDate");
 
     private final String name;
+
     SortField(String name) {
         this.name = name;
     }

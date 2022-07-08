@@ -19,7 +19,7 @@ import static com.example.avengatwitterweatherapp.constants.RocketStrikeConstant
 @AllArgsConstructor
 public class RocketStrike {
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
     @OneToOne
     @JoinColumn(name = "region_id")

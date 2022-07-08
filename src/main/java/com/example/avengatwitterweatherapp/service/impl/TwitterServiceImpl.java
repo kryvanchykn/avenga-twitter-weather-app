@@ -38,7 +38,7 @@ public class TwitterServiceImpl implements TwitterService {
             Set<RocketStrike> rocketStrikesFromTwitter = findRocketStrikesInTwitter(region, sinceDate, untilDate);
             rocketStrikeRepository.saveAll(rocketStrikesFromTwitter);
         } catch (Exception e) {
-            log.debug(e.getMessage());
+            log.error(e.getMessage());
         }
     }
 
@@ -54,17 +54,12 @@ public class TwitterServiceImpl implements TwitterService {
             log.error(e.getMessage());
         }
 
-        log.debug("Rocket strikes from twitter:");
-        for (RocketStrike rocketStrike:rocketStrikes) {
-            log.debug(rocketStrike);
-        }
-
         return rocketStrikes;
     }
 
-    private Set<RocketStrike> mapRocketStrike(List<Status> tweets, Region region){
+    private Set<RocketStrike> mapRocketStrike(List<Status> tweets, Region region) {
         return tweets.stream().map(tweet -> {
-            RocketStrike rocketStrike= new RocketStrike();
+            RocketStrike rocketStrike = new RocketStrike();
             rocketStrike.setRegion(region);
             Date input = tweet.getCreatedAt();
             Instant instant = input.toInstant();
@@ -75,14 +70,13 @@ public class TwitterServiceImpl implements TwitterService {
         }).collect(Collectors.toSet());
     }
 
-    private String formQueries(Region region, LocalDate sinceDate, LocalDate untilDate){
+    private String formQueries(Region region, LocalDate sinceDate, LocalDate untilDate) {
         String usersQuery = FROM + String.join(OR + FROM, USERS);
         String keywordsQuery = String.join(OR, KEYWORDS);
-        log.debug( "Twitter query: " + usersQuery + SINCE + sinceDate + UNTIL + untilDate + formRegionQuery(region) + AND + keywordsQuery);
         return usersQuery + SINCE + sinceDate + UNTIL + untilDate + formRegionQuery(region) + AND + keywordsQuery;
     }
 
-    private String formRegionQuery(Region region){
+    private String formRegionQuery(Region region) {
         String formattedRegionName = region.getRegionName().substring(0, region.getRegionName().length() - REGION_NAME_SUBS_NUMBER)
                 + REGION_NAME_NEW_END;
         String formattedAltRegionName = region.getRegionAltName().substring(0, region.getRegionAltName().length() -

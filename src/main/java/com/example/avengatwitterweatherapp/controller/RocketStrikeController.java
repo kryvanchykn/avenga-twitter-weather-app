@@ -34,7 +34,7 @@ public class RocketStrikeController {
     }
 
     @GetMapping("/mvc")
-    public String viewRecentRocketStrikes(Model model){
+    public String viewRecentRocketStrikes(Model model) {
 
         List<RocketStrike> recentRocketStrikes = rocketStrikeService.getRecentRocketStrikes(SORT_BY_REGION, ASC_ORDER);
         model.addAttribute("listRocketStrikes", recentRocketStrikes);
@@ -48,16 +48,16 @@ public class RocketStrikeController {
 
     @GetMapping("/rest")
     @ResponseBody
-    public List<RocketStrike> viewRecentRocketStrikes(){
+    public List<RocketStrike> viewRecentRocketStrikes() {
         return rocketStrikeService.getRecentRocketStrikes(SORT_BY_REGION, ASC_ORDER);
     }
 
 
     @PostMapping("/mvc/getFilteredRocketStrikes")
     public String viewFilteredRocketStrikes(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-                                                LocalDateTime sinceDate,
+                                            LocalDateTime sinceDate,
                                             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-                                                LocalDateTime untilDate,
+                                            LocalDateTime untilDate,
                                             @RequestParam List<Long> checkedRegionsId,
                                             @RequestParam String sortField,
                                             @RequestParam String sortDir,
@@ -65,7 +65,7 @@ public class RocketStrikeController {
 
         List<Region> checkedRegions = regionService.getRegionsById(checkedRegionsId);
         List<RocketStrike> filteredRocketStrikes = rocketStrikeService.getFilteredRocketStrikes(sinceDate,
-                    untilDate, checkedRegions, sortField, sortDir);
+                untilDate, checkedRegions, sortField, sortDir);
 
 
         model.addAttribute("listRocketStrikes", filteredRocketStrikes);
@@ -80,10 +80,10 @@ public class RocketStrikeController {
     @PostMapping("/rest/getFilteredRocketStrikes")
     @ResponseBody
     public List<RocketStrike> viewFilteredRocketStrikes(@RequestBody @Valid RocketStrikeDto rocketStrikeDto) {
-        try{
+        try {
             return rocketStrikeService.getFilteredRocketStrikes(rocketStrikeDto);
-        } catch (BadDateRangeException | DateTimeParseException ex){
-            log.debug(ex.getMessage());
+        } catch (BadDateRangeException | DateTimeParseException ex) {
+            log.error(ex.getMessage());
             throw new RestException(ex.getMessage());
         }
     }

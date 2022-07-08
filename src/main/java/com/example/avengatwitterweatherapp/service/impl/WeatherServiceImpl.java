@@ -26,13 +26,13 @@ public class WeatherServiceImpl implements WeatherService {
 
     @Override
     public Weather getWeather(RocketStrike rocketStrike) {
-        int strikeHour =  rocketStrike.getStrikeDate().getHour();
+        int strikeHour = rocketStrike.getStrikeDate().getHour();
 
         OkHttpClient client = new OkHttpClient();
         String APIkey = System.getenv("WEATHER_API_KEY");
         Request request = new Request.Builder()
                 .url("http://api.weatherapi.com/v1/history.json?key=" + APIkey + "&q=" +
-                        rocketStrike.getRegion().getRegionalCentreWeather()+ "&dt="
+                        rocketStrike.getRegion().getRegionalCentreWeather() + "&dt="
                         + rocketStrike.getStrikeDate().toLocalDate())
                 .build();
 
@@ -41,7 +41,7 @@ public class WeatherServiceImpl implements WeatherService {
             Response response = client.newCall(request).execute();
             assert response.body() != null;
             return mapWeather(new JSONObject(response.body().string()), strikeHour, rocketStrike.getRegion());
-        }catch (IOException | JSONException e){
+        } catch (IOException | JSONException e) {
             log.error(e.getMessage());
         }
         throw new WeatherForecastNotFoundException("Weather forecast for rocket strike with id=" + rocketStrike.getId()

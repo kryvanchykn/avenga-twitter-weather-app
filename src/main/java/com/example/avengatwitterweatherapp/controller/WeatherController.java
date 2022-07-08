@@ -40,10 +40,10 @@ public class WeatherController {
     @GetMapping("/rest/forecast")
     @ResponseBody
     public Weather showForecast(@RequestParam Long id) {
-        try{
+        try {
             RocketStrike rocketStrike = rocketStrikeService.getRocketStrikeById(id);
             return weatherService.getWeather(rocketStrike);
-        } catch(RocketStrikeNotFoundException | WeatherForecastNotFoundException ex) {
+        } catch (RocketStrikeNotFoundException | WeatherForecastNotFoundException ex) {
             log.error(ex.getMessage());
             throw new RestException(ex.getMessage());
         }

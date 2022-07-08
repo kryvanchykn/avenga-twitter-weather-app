@@ -1,8 +1,6 @@
 package com.example.avengatwitterweatherapp.dto;
 
-import com.example.avengatwitterweatherapp.constraintValidator.CheckDateIntervalConstraint;
-import com.example.avengatwitterweatherapp.constraintValidator.EnumConstraint;
-import com.example.avengatwitterweatherapp.constraintValidator.RegionsIdListConstraint;
+import com.example.avengatwitterweatherapp.constraintValidator.*;
 import com.example.avengatwitterweatherapp.model.SortDir;
 import com.example.avengatwitterweatherapp.model.SortField;
 import lombok.Data;
@@ -18,23 +16,25 @@ import static com.example.avengatwitterweatherapp.constants.RocketStrikeConstant
 import static com.example.avengatwitterweatherapp.constants.TwitterConstants.BOUNDARY_DATE;
 
 @Data
-@CheckDateIntervalConstraint(sinceDateStr = "sinceDate", untilDateStr = "untilDate")
+@CheckDateIntervalConstraint
 public class RocketStrikeDto {
+    @Since
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     @PastOrPresent
-    LocalDateTime sinceDate = BOUNDARY_DATE;
+    public LocalDateTime sinceDate = BOUNDARY_DATE;
 
+    @Until
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     @PastOrPresent
-    LocalDateTime untilDate = LocalDateTime.now();
+    public LocalDateTime untilDate = LocalDateTime.now();
 
     @NotNull
     @RegionsIdListConstraint
-    List<Long> checkedRegionsId;
+    private List<Long> checkedRegionsId;
 
     @EnumConstraint(enumClass = SortField.class)
-    String sortField = SORT_BY_REGION;
+    private String sortField = SORT_BY_REGION;
 
     @EnumConstraint(enumClass = SortDir.class)
-    String sortDir = ASC_ORDER;
+    private String sortDir = ASC_ORDER;
 }

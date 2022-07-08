@@ -12,18 +12,18 @@
 </head>
 <body>
 
-<div class = "row">
-    <div class ="col-lg-6 col-md-6 col-sm-6 container justify-content-center card">
-        <h1 class = "text-center"> Select period of time </h1>
-        <div class = "card-body">
+<div class="row">
+    <div class="col-lg-6 col-md-6 col-sm-6 container justify-content-center card">
+        <h1 class="text-center"> Select period of time </h1>
+        <div class="card-body">
             <form th:action="@{/mvc/getFilteredRocketStrikes}" method="POST">
-                <div class ="form-group">
+                <div class="form-group">
                     <label> Since date </label>
                     <input
-                            type = "datetime-local"
-                            name = "sinceDate"
-                            id = "sinceDate"
-                            class = "form-control"
+                            type="datetime-local"
+                            name="sinceDate"
+                            id="sinceDate"
+                            class="form-control"
                             placeholder="Enter start date"
                             min="2022-02-24T00:00"
                             value="2022-06-01T00:00"
@@ -31,13 +31,13 @@
                     />
                 </div>
 
-                <div class ="form-group">
+                <div class="form-group">
                     <label> Until date </label>
                     <input
-                            type = "datetime-local"
-                            name = "untilDate"
-                            id = "untilDate"
-                            class = "form-control"
+                            type="datetime-local"
+                            name="untilDate"
+                            id="untilDate"
+                            class="form-control"
                             placeholder="Enter end date"
                             min="2022-02-24T00:00"
                             value="2022-06-01T00:00"
@@ -62,7 +62,7 @@
                 </div>
 
                 <div>
-                    <input type="checkbox" onClick="toggle(this)" /> Select All<br/>
+                    <input type="checkbox" onClick="toggle(this)"/> Select All<br/>
 
                     <div th:each="region : ${listRegions}">
                         <input type="checkbox" th:id="${region.id}"
@@ -71,8 +71,8 @@
                     </div>
                 </div>
 
-                <div class = "box-footer">
-                    <button type="submit" class = "btn btn-primary">
+                <div class="box-footer">
+                    <button type="submit" class="btn btn-primary">
                         Submit
                     </button>
                 </div>
@@ -86,7 +86,7 @@
 <div class="container my-2">
     <h1>Rocket strikes list</h1>
 
-    <table border="1" class = "table table-striped table-responsive-md">
+    <table border="1" class="table table-striped table-responsive-md">
         <thead>
         <tr>
             <th>Region</th>
@@ -99,8 +99,8 @@
             <td th:text="${rocketStrike.region.regionalCentre}"></td>
             <td th:text="${#temporals.format(rocketStrike.strikeDate, 'MM/dd/yyyy hh:mm a')}"></td>
             <td>
-                <a th:href = "@{/mvc/forecast/(id=${rocketStrike.id})}"
-                   class = "btn btn-primary">Show forecast</a>
+                <a th:href="@{/mvc/forecast/(id=${rocketStrike.id})}"
+                   class="btn btn-primary">Show forecast</a>
             </td>
         </tr>
         </tbody>
