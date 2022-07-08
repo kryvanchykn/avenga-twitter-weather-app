@@ -21,12 +21,12 @@ public class RocketStrikeDto {
     @Since
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     @PastOrPresent
-    public LocalDateTime sinceDate = BOUNDARY_DATE;
+    private LocalDateTime sinceDate = BOUNDARY_DATE;
 
     @Until
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     @PastOrPresent
-    public LocalDateTime untilDate = LocalDateTime.now();
+    private LocalDateTime untilDate = LocalDateTime.now();
 
     @NotNull
     @RegionsIdListConstraint
