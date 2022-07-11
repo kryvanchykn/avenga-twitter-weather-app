@@ -5,6 +5,7 @@ import com.example.avengatwitterweatherapp.exceptions.BadDateRangeException;
 import com.example.avengatwitterweatherapp.exceptions.NoSelectedRegionsException;
 import com.example.avengatwitterweatherapp.exceptions.RocketStrikeNotFoundException;
 import com.example.avengatwitterweatherapp.model.Region;
+import com.example.avengatwitterweatherapp.model.RegionQuery;
 import com.example.avengatwitterweatherapp.model.RocketStrike;
 import com.example.avengatwitterweatherapp.repository.RocketStrikeRepository;
 import com.example.avengatwitterweatherapp.service.RegionService;
@@ -71,6 +72,7 @@ public class RocketStrikeServiceImpl implements RocketStrikeService {
 
         LocalDateTime firstRocketStrikeDate;
         LocalDateTime lastRocketStrikeDate;
+        List<RegionQuery> regionQueries = new ArrayList<>();
 
         List<RocketStrike> rocketStrikesFromDB = getRocketStrikesFromDB(sinceDate, untilDate, regions, sortField, sortDir);
         for (Region region : regions) {
@@ -78,17 +80,17 @@ public class RocketStrikeServiceImpl implements RocketStrikeService {
             lastRocketStrikeDate = getLastRocketStrikeDateRecord(region);
 
             if (rocketStrikesFromDB.size() == 0) {
-                twitterService.saveRocketStrikesFromTwitter(sinceDate.toLocalDate(), untilDate.toLocalDate(), region);
+                regionQueries.add(new RegionQuery(region, sinceDate.toLocalDate(), untilDate.toLocalDate()));
             } else {
                 if (firstRocketStrikeDate.isAfter(sinceDate)) {
-                    twitterService.saveRocketStrikesFromTwitter(sinceDate.toLocalDate(), firstRocketStrikeDate.toLocalDate(), region);
+                    regionQueries.add(new RegionQuery(region, sinceDate.toLocalDate(), firstRocketStrikeDate.toLocalDate()));
                 }
                 if (lastRocketStrikeDate.isBefore(untilDate)) {
-                    twitterService.saveRocketStrikesFromTwitter(lastRocketStrikeDate.toLocalDate(), untilDate.toLocalDate(), region);
+                    regionQueries.add(new RegionQuery(region, lastRocketStrikeDate.toLocalDate(), untilDate.toLocalDate()));
                 }
             }
         }
-
+        twitterService.saveRocketStrikesFromTwitter(regionQueries);
         List<RocketStrike> filteredRocketStrikes = getRocketStrikesFromDB(sinceDate, untilDate, regions, sortField, sortDir);
         return filterByTime(sinceDate, untilDate, filteredRocketStrikes);
     }

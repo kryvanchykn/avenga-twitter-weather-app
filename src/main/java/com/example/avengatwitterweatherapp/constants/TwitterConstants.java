@@ -15,5 +15,6 @@ public class TwitterConstants {
     public static final String FROM = " from:";
     public static final String SINCE = " since:";
     public static final String UNTIL = " until:";
+    public static final int REGION_QUERY_BATCH_LEN = 4;
 
 }

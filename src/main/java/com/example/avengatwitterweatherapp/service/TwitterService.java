@@ -1,9 +1,9 @@
 package com.example.avengatwitterweatherapp.service;
 
-import com.example.avengatwitterweatherapp.model.Region;
+import com.example.avengatwitterweatherapp.model.RegionQuery;
 
-import java.time.LocalDate;
+import java.util.List;
 
 public interface TwitterService {
-    void saveRocketStrikesFromTwitter(LocalDate sinceDate, LocalDate untilDate, Region region);
+    void saveRocketStrikesFromTwitter(List<RegionQuery> regionQueries);
 }
