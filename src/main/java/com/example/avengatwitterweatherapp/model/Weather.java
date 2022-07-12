@@ -17,6 +17,10 @@ public class Weather {
     @JsonProperty("time")
     private String time;
 
+    private String description;
+
+    private String imageLink;
+
     @JsonProperty("temp_c")
     private double temp;
 

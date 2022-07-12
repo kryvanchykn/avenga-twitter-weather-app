@@ -12,6 +12,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
@@ -50,11 +51,18 @@ public class WeatherServiceImpl implements WeatherService {
 
 
     private Weather mapWeather(JSONObject jsonWeather, int hour, Region region) throws JSONException, JsonProcessingException {
-        String hourArray = jsonWeather.getJSONObject(FORECAST).getJSONArray(FORECAST_DAY).getJSONObject(0)
-                .getJSONArray(HOUR).toString();
+        JSONArray hourJsonArray = jsonWeather.getJSONObject(FORECAST).getJSONArray(FORECAST_DAY).getJSONObject(0)
+                .getJSONArray(HOUR);
+        JSONObject condition = hourJsonArray.getJSONObject(hour).getJSONObject(CONDITION);
+        String hourArray = hourJsonArray.toString();
+
         ObjectMapper mapper = new ObjectMapper();
         Weather[] weatherArray = mapper.readValue(hourArray, Weather[].class);
-        weatherArray[hour].setRegion(region);
+
+        Weather weather = weatherArray[hour];
+        weather.setRegion(region);
+        weather.setDescription(condition.get(TEXT).toString());
+        weather.setImageLink(condition.get(ICON).toString());
         return weatherArray[hour];
     }
 
